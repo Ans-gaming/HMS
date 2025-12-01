@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Housekeeping Dashboard - HMS Deluxe</title>
+  <link rel="stylesheet" href="dashboard.css" />
+</head>
+
+<body>
+
+<header class="header">
+  <div class="brand">
+    <div class="logo">🏨</div>
+    <h1>HMS Deluxe — Housekeeping</h1>
+  </div>
+  <div>
+    <button class="btn" onclick="location.href='logindesk.html'">Login Desk</button>
+  </div>
+</header>
+
+<div class="page">
+  <aside class="sidebar">
+    <h3>Housekeeping Menu</h3>
+    <div class="menu-section">
+      <button class="menu-btn" onclick="document.getElementById('requests').scrollIntoView()">🧹 Room Requests</button>
+      <button class="menu-btn" onclick="document.getElementById('schedule').scrollIntoView()">📅 Today's Roster</button>
+      <button class="menu-btn" onclick="document.getElementById('completed').scrollIntoView()">✅ Completed</button>
+    </div>
+  </aside>
+
+  <main class="main">
+
+    <!-- TITLE -->
+    <div class="title-row">
+      <div>
+        <h2>Housekeeping Requests</h2>
+        <div class="sub">View and manage all incoming housekeeping requests</div>
+      </div>
+      <div class="controls">
+        <button class="btn" onclick="markAll()">Mark All Done</button>
+        <button class="btn ghost" onclick="location.reload()">Refresh</button>
+      </div>
+    </div>
+
+    <!-- PENDING REQUESTS -->
+    <div id="requests" class="card">
+      <h3 style="margin-top:0">Pending Requests</h3>
+
+      <table class="table" aria-label="requests table">
+        <thead>
+          <tr>
+            <th>Guest</th>
+            <th>Room</th>
+            <th>Service</th>
+            <th>Time</th>
+            <th>Status</th>
+            <th></th>
+          </tr>
+        </thead>
+
+        <tbody id="hkRequests">
+          <!-- Populated dynamically -->
+        </tbody>
+      </table>
+    </div>
+
+    <!-- ROSTER -->
+    <div id="schedule" class="card">
+      <h3 style="margin-top:0">Today's Roster</h3>
+      <p><strong>Shift A (8:00 - 14:00):</strong> Meena, Sunil</p>
+      <p><strong>Shift B (14:00 - 20:00):</strong> Ramesh, Priya</p>
+    </div>
+
+    <!-- COMPLETED -->
+    <div id="completed" class="card">
+      <h3 style="margin-top:0">Recently Completed</h3>
+      <ul id="completedList">
+        <!-- Completed tasks pushed here -->
+      </ul>
+    </div>
+
+  </main>
+</div>
+
+<footer>&copy; 2025 HMS Deluxe. All rights reserved.</footer>
+
+
+
+<!-- ===================== SCRIPT SECTION ===================== -->
+
+<script>
+
+// Load data on page load
+window.onload = function () {
+    loadRequests();
+};
+
+// Load all housekeeping requests from localStorage
+function loadRequests() {
+    const tbody = document.getElementById("hkRequests");
+    let data = JSON.parse(localStorage.getItem("hkRequests")) || [];
+
+    tbody.innerHTML = ""; 
+
+    data.forEach(req => {
+        const row = document.createElement("tr");
+
+        row.innerHTML = `
+            <td>${req.user}</td>
+            <td>${req.room}</td>
+            <td>${req.service}</td>
+            <td>${req.time}</td>
+            <td class="${req.status === 'Done' ? 'status-done' : 'status-pending'}">${req.status}</td>
+            <td>
+                ${req.status === "Pending" ? `<button class="small" onclick="completeRow(this)">Mark Done</button>` : ""}
+            </td>
+        `;
+
+        tbody.appendChild(row);
+
+        // Move done requests to completed list
+        if (req.status === "Done") {
+            addToCompleted(req);
+        }
+    });
+}
+
+
+// Mark individual row done
+function completeRow(btn) {
+    const tr = btn.closest("tr");
+    const user = tr.children[0].textContent;
+    const room = tr.children[1].textContent;
+    const service = tr.children[2].textContent;
+
+    tr.children[4].textContent = "Done";
+    tr.children[4].className = "status-done";
+    btn.remove();
+
+    // Update in localStorage
+    let data = JSON.parse(localStorage.getItem("hkRequests")) || [];
+    data = data.map(r => {
+        if (r.user === user && r.room === room && r.service === service) {
+            r.status = "Done";
+            addToCompleted(r);
+        }
+        return r;
+    });
+
+    localStorage.setItem("hkRequests", JSON.stringify(data));
+}
+
+
+// Mark ALL rows Done
+function markAll() {
+    let data = JSON.parse(localStorage.getItem("hkRequests")) || [];
+
+    data = data.map(r => {
+        r.status = "Done";
+        addToCompleted(r);
+        return r;
+    });
+
+    localStorage.setItem("hkRequests", JSON.stringify(data));
+
+    loadRequests();
+
+    alert("All housekeeping requests marked done.");
+}
+
+
+// Add completed request to Completed section
+function addToCompleted(req) {
+    const list = document.getElementById("completedList");
+
+    const li = document.createElement("li");
+    li.textContent = `Room ${req.room} — ${req.service} (${req.time})`;
+
+    list.appendChild(li);
+}
+
+</script>
+
+</body>
+</html>

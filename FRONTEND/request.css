@@ -1,0 +1,239 @@
+/* ---------------------------------------------------
+   GLOBAL STYLING – Premium UI
+------------------------------------------------------ */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Poppins", sans-serif;
+}
+
+body {
+    background: linear-gradient(to bottom right, #eef2f7, #d6e1ff);
+    min-height: 100vh;
+    color: #333;
+}
+
+/* ---------------------------------------------------
+   HEADER – Gradient Luxury
+------------------------------------------------------ */
+header {
+    background: linear-gradient(90deg, #1a237e, #0d47a1);
+    padding: 16px 30px;
+    color: white;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.logo {
+    font-size: 1.6em;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+}
+
+.btn-home {
+    background: rgba(255,255,255,0.25);
+    color: white;
+    border: none;
+    padding: 10px 16px;
+    border-radius: 50px;
+    cursor: pointer;
+    font-weight: 600;
+    backdrop-filter: blur(4px);
+    transition: 0.3s;
+}
+
+.btn-home:hover {
+    background: white;
+    color: #1a237e;
+    transform: translateY(-2px);
+}
+
+/* ---------------------------------------------------
+   TABS – Modern Rounded Buttons
+------------------------------------------------------ */
+.tabs {
+    text-align: center;
+    margin-top: 25px;
+}
+
+.tab-btn {
+    background: #c5cae9;
+    border: none;
+    padding: 10px 25px;
+    margin: 5px;
+    border-radius: 40px;
+    cursor: pointer;
+    font-size: 15px;
+    font-weight: 600;
+    transition: 0.25s;
+}
+
+.tab-btn:hover {
+    background: #9fa8da;
+}
+
+.tab-btn.active {
+    background: #1a237e;
+    color: white;
+    box-shadow: 0 4px 10px rgba(26,35,126,0.4);
+}
+
+/* ---------------------------------------------------
+   CONTENT TABS
+------------------------------------------------------ */
+.tab-content {
+    display: none;
+    animation: fadeIn 0.5s ease-in-out;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(5px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* ---------------------------------------------------
+   CONTAINER
+------------------------------------------------------ */
+.container {
+    width: 75%;
+    margin: 30px auto;
+}
+
+/* ---------------------------------------------------
+   CARD – Glassy White Professional Box
+------------------------------------------------------ */
+.action-card {
+    background: rgba(255,255,255,0.95);
+    padding: 30px;
+    border-radius: 16px;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.12);
+    border: 1px solid rgba(255,255,255,0.55);
+    backdrop-filter: blur(5px);
+    animation: floatCard 2s infinite ease-in-out;
+}
+
+@keyframes floatCard {
+    0% { transform: translateY(0px); }
+    50% { transform: translateY(-4px); }
+    100% { transform: translateY(0px); }
+}
+
+/* ---------------------------------------------------
+   FORM ELEMENTS – Clean & Soft Inputs
+------------------------------------------------------ */
+
+h2 {
+    text-align: center;
+    color: #1a237e;
+    font-size: 2em;
+    margin-bottom: 15px;
+}
+
+p {
+    display: block;
+    margin-top: 12px;
+    font-weight: 600;
+    text-align: center;
+}
+
+label {
+    display: block;
+    margin-top: 12px;
+    font-weight: 600;
+    color: #1a237e;
+}
+
+input, select, textarea {
+    width: 100%;
+    padding: 12px;
+    margin-top: 6px;
+    font-size: 1em;
+    border: 1px solid #b0b0b0;
+    border-radius: 8px;
+    background: #f8faff;
+    transition: 0.2s;
+}
+
+input:focus, select:focus, textarea:focus {
+    border-color: #1a237e;
+    box-shadow: 0 0 8px rgba(26,35,126,0.3);
+    outline: none;
+}
+
+textarea { resize: none; }
+
+/* ---------------------------------------------------
+   GRID OPTIONS FOR CHECKBOXES
+------------------------------------------------------ */
+
+legend {
+    font-weight: 700;
+    margin-top: 20px;
+    color: #1a237e;
+}
+
+.checkbox-grid, .hk-options {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+    margin-top: 12px;
+}
+
+.checkbox-grid label, .hk-options label {
+    background: #e8eaf6;
+    padding: 10px;
+    border-radius: 8px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.checkbox-grid label:hover, .hk-options label:hover {
+    background: #c5cae9;
+}
+
+/* ---------------------------------------------------
+   SUBMIT BUTTON – Premium Rounded CTA
+------------------------------------------------------ */
+.btn-submit {
+    width: 100%;
+    margin-top: 25px;
+    padding: 14px;
+    background: linear-gradient(90deg, #1a237e, #283593);
+    border: none;
+    border-radius: 50px;
+    color: white;
+    font-size: 17px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: 0.3s;
+    letter-spacing: 0.5px;
+}
+
+.btn-submit:hover {
+    background: #303f9f;
+    transform: translateY(-3px);
+    box-shadow: 0 6px 18px rgba(26,35,126,0.4);
+}
+
+/* ---------------------------------------------------
+   FOOTER – Modern Slim Footer
+------------------------------------------------------ */
+footer {
+    background: #1a237e;
+    color: white;
+    text-align: center;
+    padding: 12px;
+    margin-top: 40px;
+    font-size: 0.95em;
+}

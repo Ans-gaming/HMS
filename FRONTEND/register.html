@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Registration</title>
+    <link rel="stylesheet" href="register.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+
+<body>
+    <header>
+        <div class="logo">🏨 HMS Deluxe</div>
+        <!-- ✅ Back Button Added -->
+        <button class="btn-back-home" onclick="window.location.href='index.html'">Back to Home</button>
+    </header>
+
+    <div class="container" style="justify-content: center;">
+        <div class="action-hub" style="width: 400px; padding: 40px;">
+            <h3>Create Your Account</h3>
+
+            <!-- ⭐ SAME FORM as your original, only action removed for JS -->
+            <form id="registerForm" onsubmit="return submitForm(event)">
+                <input type="text" name="username" placeholder="Full Name" required>
+
+                <div class="password-container">
+                  <input type="password" id="password" name="password" placeholder="Password" required
+                  pattern="(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}">
+                  <i class="fa-solid fa-eye togglePassword" onclick="togglePass('password', this)"></i>
+                </div>
+
+                <div class="password-container">
+                  <input type="password" id="confirm_password" name="confirm_password" placeholder="Confirm Password" required>
+                  <i class="fa-solid fa-eye togglePassword" onclick="togglePass('confirm_password', this)"></i>
+                </div>
+
+                <input type="email" name="email" placeholder="Email Address" required>
+
+                <input type="tel" name="contact" placeholder="Contact Number" required
+                    pattern="[0-9]{10}" maxlength="10"
+                    title="Enter exactly 10 digits (numbers only).">
+
+                <button type="submit" class="btn-user-register">Register Account</button>
+            </form>
+
+            <p style="margin-top: 15px;">Already have an account? <a href="login.html">Login</a></p>
+        </div>
+    </div>
+
+    <footer>&copy; 2025 HMS Deluxe. All rights reserved.</footer>
+
+    <script>
+        // FULL NAME: Only characters allowed
+        document.querySelector("input[name='username']").addEventListener("keypress", function (e) {
+            let char = String.fromCharCode(e.which);
+
+            if (!/^[a-zA-Z ]+$/.test(char)) {
+                e.preventDefault();
+            }
+        });
+
+        // CONTACT NUMBER: Only digits allowed
+        document.querySelector("input[name='contact']").addEventListener("keypress", function (e) {
+            let char = String.fromCharCode(e.which);
+
+            if (!/^[0-9]$/.test(char)) {
+                e.preventDefault();
+            }
+        });
+
+        // FORM VALIDATION (original)
+        function validateForm() {
+            const password = document.getElementById("password").value;
+            const confirm = document.getElementById("confirm_password").value;
+
+            if (password !== confirm) {
+                alert("Passwords do not match!");
+                return false;
+            }
+            return true;
+        }
+
+        function validateQuickForm() {
+            const password = document.getElementById("quick_password").value;
+            const passwordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&]).{8,}$/;
+
+            if (!passwordPattern.test(password)) {
+                alert("Password must have uppercase, lowercase, number, and special character, and be at least 8 characters long.");
+                return false;
+            }
+            return true;
+        }
+
+        /* ⭐ ADDED: SEND FORM DATA TO NODE BACKEND */
+        async function submitForm(event) {
+            event.preventDefault();
+
+            const username = document.querySelector("input[name='username']").value;
+            const password = document.getElementById("password").value;
+            const confirm = document.getElementById("confirm_password").value;
+            const email = document.querySelector("input[name='email']").value;
+            const contact = document.querySelector("input[name='contact']").value;
+
+            if (password !== confirm) {
+                alert("Passwords do not match!");
+                return false;
+            }
+
+            try {
+                const response = await fetch("http://localhost:5000/register", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ username, password, email, contact })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    alert("Registration Successful!");
+                    window.location.href = "login.html"; // Redirect
+                } else {
+                    alert("Error: " + result.message);
+                }
+            } catch (error) {
+                alert("Failed to connect to server!");
+            }
+        }
+    </script>
+
+    <script>
+    function togglePass(id, icon) {
+    const field = document.getElementById(id);
+
+    if (field.type === "password") {
+        field.type = "text";
+        icon.classList.remove("fa-eye");
+        icon.classList.add("fa-eye-slash");
+    } else {
+        field.type = "password";
+        icon.classList.remove("fa-eye-slash");
+        icon.classList.add("fa-eye");
+    }
+    }
+    </script>
+
+</body>
+</html>

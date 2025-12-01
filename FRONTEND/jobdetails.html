@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Job Details - HMS Deluxe</title>
+    <link rel="stylesheet" href="jobdetails.css">
+</head>
+<body>
+
+<header>
+    <div class="logo">🏨 HMS Deluxe</div>
+</header>
+
+<div class="container">
+    <h2>Job Details</h2>
+    <p>Select a job role and shift to view salary details.</p>
+
+    <form id="jobDetailsForm">
+
+        <label>Job Role</label>
+        <select id="jobRole" required>
+            <option value="">Select Role</option>
+            <option value="frontdesk">Front Desk Staff</option>
+            <option value="housekeeping">Housekeeping Staff</option>
+            <option value="cook">Cook / Kitchen Staff</option>
+            <option value="service">Service Staff</option>
+        </select>
+
+        <label>Shift</label>
+        <select id="shift" required>
+            <option value="">Select Shift</option>
+            <option value="morning">Morning Shift</option>
+            <option value="evening">Evening Shift</option>
+            <option value="night">Night Shift</option>
+        </select>
+
+        <label>Upload Resume (PDF / DOC)</label>
+        <input type="file" id="resume" accept=".pdf,.doc,.docx" required>
+
+        <div class="salary-box">
+            <label>Salary</label>
+            <div id="salaryDisplay">₹0</div>
+        </div>
+
+        <button type="submit" class="apply-btn">Confirm & Submit</button>
+        <button type="button" class="back-btn" onclick="cancelApplication()">Cancel Application</button>
+
+    </form>
+</div>
+
+<footer>&copy; 2025 HMS Deluxe. All rights reserved.</footer>
+
+<script>
+const salaryData = {
+    frontdesk: { morning: 15000, evening: 16000, night: 18000 },
+    housekeeping: { morning: 12000, evening: 13000, night: 15000 },
+    cook: { morning: 18000, evening: 20000, night: 22000 },
+    service: { morning: 14000, evening: 15000, night: 17000 }
+};
+
+document.getElementById("jobRole").addEventListener("change", updateSalary);
+document.getElementById("shift").addEventListener("change", updateSalary);
+
+function updateSalary() {
+    let role = document.getElementById("jobRole").value;
+    let shift = document.getElementById("shift").value;
+
+    if (role && shift) {
+        document.getElementById("salaryDisplay").textContent =
+            "₹" + salaryData[role][shift];
+    } else {
+        document.getElementById("salaryDisplay").textContent = "₹0";
+    }
+}
+
+document.getElementById("jobDetailsForm").addEventListener("submit", async function (e) {
+    e.preventDefault();
+
+    let jobRole = document.getElementById("jobRole").value;
+    let shift = document.getElementById("shift").value;
+    let resume = document.getElementById("resume").files[0];
+
+    if (!resume) {
+        alert("Please upload resume");
+        return;
+    }
+
+    // ⭐ Get email from localStorage
+    const email = localStorage.getItem("staffEmail");
+
+    if (!email) {
+        alert("Email missing! Register again.");
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append("jobRole", jobRole);
+    formData.append("shift", shift);
+    formData.append("resume", resume);
+
+    // ⭐ Add email to backend
+    formData.append("email", email);
+
+    try {
+        const response = await fetch("http://localhost:5000/job-details", {
+            method: "POST",
+            body: formData
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            alert("Job details submitted successfully!");
+            window.location.href = "logindesk.html";
+        } else {
+            alert(result.message);
+        }
+    } catch (err) {
+        console.error(err);
+        alert("Server error!");
+    }
+});
+</script>
+
+<script>
+async function cancelApplication() {
+    const email = localStorage.getItem("staffEmail");
+
+    if (!email) {
+        alert("Email missing! Cannot cancel application.");
+        return;
+    }
+
+    if (!confirm("Are you sure? Your entire application will be deleted permanently.")) {
+        return;
+    }
+
+    const res = await fetch("http://localhost:5000/cancel-application", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email })
+    });
+
+    const data = await res.json();
+
+    if (data.success) {
+        alert("Application cancelled successfully!");
+
+        // Clear data
+        localStorage.removeItem("staffEmail");
+
+        window.location.href = "index.html";
+    } else {
+        alert("Error: " + data.message);
+    }
+}
+</script>
+
+<script>
+async function loadAvailability() {
+    const res = await fetch("http://localhost:5000/job-availability");
+    const data = await res.json();
+
+    if (!data.success) return;
+
+    const limits = data.limits;
+    const count = data.count;
+
+    const jobRole = document.getElementById("jobRole");
+    const shift = document.getElementById("shift");
+
+    jobRole.querySelectorAll("option").forEach(opt => {
+        if (!opt.value) return;
+        if (count[opt.value].total >= limits[opt.value].total) {
+            opt.disabled = true;
+        }
+    });
+
+    jobRole.addEventListener("change", () => {
+        let role = jobRole.value;
+
+        shift.querySelectorAll("option").forEach(opt => {
+            if (!opt.value) return;
+
+            if (count[role][opt.value] >= limits[role][opt.value]) {
+                opt.disabled = true;
+            } else {
+                opt.disabled = false;
+            }
+        });
+    });
+}
+
+loadAvailability();
+</script>
+
+</body>
+</html>

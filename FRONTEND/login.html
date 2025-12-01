@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Login</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" href="login.css">
+</head>
+<body>
+    <header>
+        <div class="logo">🏨 HMS Deluxe</div>
+         <!-- ✅ Back Button Added -->
+        <button class="btn-back-home" onclick="window.location.href='index.html'">Back to Home</button>
+    </header>
+
+    <div class="container" style="justify-content: center;">
+        <div class="action-hub" style="width: 400px; padding: 40px;">
+            <h3>User Login</h3>
+
+            <!-- ⭐ UPDATED: JS handles login -->
+            <form id="loginForm" onsubmit="return loginUser(event)">
+                <input type="text" name="username" placeholder="User Name" required>
+                <div class="password-container">
+                  <input type="password" id="login_password" name="password" placeholder="Password" required>
+                  <i class="fa-solid fa-eye togglePassword" onclick="toggleLoginPass(this)"></i>
+                </div>
+                <button type="submit" class="btn-user-login">Login</button>
+            </form>
+
+            <p style="margin-top: 15px;">Don't have an account? <a href="register.html">Register Here</a></p>
+            <p style="margin-top: 15px;">Forgot Password? <a href="forgot.html">Forgot Password</a></p>
+        </div>
+    </div>
+    
+    <footer>&copy; 2025 HMS Deluxe. All rights reserved.</footer>
+
+    <script>
+        // FULL NAME: Allow only A-Z and a-z (case-sensitive)
+        document.querySelector("input[name='username']").addEventListener("keypress", function (e) {
+            const char = String.fromCharCode(e.which);
+
+            // Allow only letters and space
+            if (!/^[A-Za-z ]$/.test(char)) {
+                e.preventDefault(); // block input
+            }
+        });
+
+        // Also block pasted numbers/symbols
+        document.querySelector("input[name='username']").addEventListener("input", function () {
+            this.value = this.value.replace(/[^A-Za-z ]/g, "");
+        });
+
+        /* ⭐LOGIN FUNCTION — Connect to Node.js backend */
+        async function loginUser(event) {
+            event.preventDefault();
+
+            const username = document.querySelector("input[name='username']").value;
+            const password = document.querySelector("input[name='password']").value;
+
+            try {
+                const response = await fetch("http://localhost:5000/login", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ username, password })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    alert("Login Successful!");
+                    // ⭐ Save username for dashboard
+                    localStorage.setItem("guestUsername", username);
+                    window.location.href = "userhome.html"; // redirect to user dashboard
+                } else {
+                    alert("Error: " + result.message);
+                }
+
+            } catch (error) {
+                alert("Failed to connect to server!");
+            }
+        }
+
+        function toggleLoginPass(icon) {
+          const field = document.getElementById("login_password");
+
+          if (field.type === "password") {
+            field.type = "text";
+            icon.classList.remove("fa-eye");
+            icon.classList.add("fa-eye-slash");
+          } else {
+            field.type = "password";
+            icon.classList.remove("fa-eye-slash");
+            icon.classList.add("fa-eye");
+          }
+        }
+    </script>
+
+</body>
+</html>

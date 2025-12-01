@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cancel Booking</title>
+    <link rel="stylesheet" href="cancel.css">
+</head>
+<body>
+    <header>
+      <div class="logo">🏨 HMS Deluxe</div>
+        <nav>
+           <button class="btn-home" onclick="location.href='userhome.html'">🏠 Dashboard</button>
+        </nav>
+    </header>
+    <div class="container">
+        <h2>Cancel Your Booking</h2>
+
+        <p class="info-text">Please enter your booking ID and reason for cancellation.</p>
+
+        <form id="cancelForm">
+            <label for="bookingId">Booking ID</label>
+            <input type="text" id="bookingId" readonly style="background:#f1f1f193; cursor:not-allowed;">
+
+            <label for="reason">Reason for Cancellation</label>
+            <textarea id="reason" placeholder="Enter your reason..." required></textarea>
+
+            <button type="submit" class="cancel-btn">Cancel Booking</button>
+        </form>
+
+        <div id="popup" class="popup">
+            <div class="popup-box">
+                <h3>Booking Cancelled Successfully!</h3>
+                <button id="okBtn">OK</button>
+            </div>
+        </div>
+    </div>
+    <footer>&copy; 2025 HMS Deluxe. All rights reserved.</footer>
+    <script>
+
+    // ⭐ AUTO-FILL BOOKING ID FOR THAT LOGGED-IN USER
+    window.addEventListener("DOMContentLoaded", () => {
+      const user = localStorage.getItem("guestUsername");
+      const userBookingId = localStorage.getItem(`lastBookingId_${user}`);
+
+      if (userBookingId) {
+        document.getElementById("bookingId").value = userBookingId;
+      }
+    });
+
+    /* ----------------------------------------------------
+       LIVE VALIDATION
+       Format required: ABC-1234-5678
+       • First 3 = letters only
+       • Next 8 = numbers only
+    ------------------------------------------------------*/
+    function validateBookingId(input) {
+        let value = input.value.toUpperCase().replace(/[^A-Z0-9]/g, "");
+
+        let letters = value.substring(0, 3).replace(/[^A-Z]/g, "");  // first 3 letters
+        let nums = value.substring(3).replace(/[^0-9]/g, "");       // rest digits only
+
+        // Limit digits to exactly 8
+        nums = nums.substring(0, 8);
+
+        // Build the formatted value
+        let formatted = letters;
+        if (nums.length > 0) formatted += "-" + nums.substring(0, 4);
+        if (nums.length > 4) formatted += "-" + nums.substring(4);
+
+        input.value = formatted;
+    }
+
+    /* ----------------------------------------------------
+       FINAL CHECK ON SUBMIT
+    ------------------------------------------------------*/
+    document.getElementById("cancelForm").addEventListener("submit", function(e) {
+    e.preventDefault();
+
+    const bookingId = document.getElementById("bookingId").value;
+
+    const validFormat = /^[A-Z]{3}-\d{4}-\d{4}$/;
+
+    if (!validFormat.test(bookingId)) {
+        alert("❌ Invalid Booking ID! Format must be: ABC-1234-5678");
+        return;
+    }
+
+    // ⭐ GET EXTRA DETAILS
+const guestName = localStorage.getItem("guestUsername");
+const reason = document.getElementById("reason").value;
+
+// ⭐ SAVE CANCEL REQUEST FOR FRONT DESK
+fetch("http://localhost:5000/save-cancel-request", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+        guestName,
+        bookingId,
+        reason
+    })
+});
+
+    // ⭐ SEND CANCELLATION TO BACKEND
+    fetch("http://localhost:5000/cancel-booking", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ bookingId })
+    });
+
+    // ⭐ SHOW POPUP
+    document.getElementById("popup").style.display = "flex";
+
+    document.getElementById("okBtn").onclick = function () {
+        // ⭐ STEP 3 — Remove last booking so user can book again
+        const user = localStorage.getItem("guestUsername");
+        localStorage.removeItem(`lastBookingId_${user}`);
+
+        window.location.href = "userhome.html";
+    };
+});
+
+</script>
+
+</body>
+</html>

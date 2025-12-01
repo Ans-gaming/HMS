@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guest Dashboard - HMS Deluxe</title>
+    <link rel="stylesheet" href="userhome.css"> 
+</head>
+<body>
+
+    <header>
+        <div class="logo">🏨 HMS Deluxe</div>
+        <nav>
+            <p id="guestName">Welcome, Guest User</p>
+        </nav>
+        <button class="btn-admin-login" onclick="location.href='index.html'">🏠 Dashboard</button>
+    </header>
+
+    <div class="container">
+        
+        <!-- Sidebar/Action Hub for Guest -->
+        <div class="action-hub-buttons">
+           <button id="btn-book" class="dash-link dash-link-book" onclick="location.href='booking.html'"> Book New Stay</button>
+           <button id="btn-contact" class="dash-link dash-link-contact" onclick="location.href='request.html'">📞 Contact Front Desk</button>
+           <button id="btn-review" class="dash-link dash-link-review" onclick="location.href='reviews.html'">📝 Leave a Review</button>
+           <button id="btn-cancel" class="dash-link dash-link-cancel" onclick="location.href='cancel.html'">❌ Cancel Booking</button>
+        </div>
+
+        <!-- Main Dashboard Content -->
+        <div class="main-content">
+            <div class="section">
+                <h2 id="welcomeUser">Hello, Valued Guest</h2>
+                <p>Welcome to your personal Hotel Management System dashboard. Here you can view your current reservation details and manage services during your stay.</p>
+            </div>
+            
+            <div class="dashboard-grid">
+                
+               <div class="dashboard-card" id="card-reservation">
+               <h4>Current Reservation Status</h4>
+               <p><strong>Booking ID:</strong> <span id="res-bookingId">--</span></p>
+               <p><strong>Check-in:</strong> <span id="res-checkin">--</span></p>
+               <p><strong>Check-out:</strong> <span id="res-checkout">--</span></p>
+               <p><strong>Status:</strong> <span id="res-status">--</span></p>
+               </div>
+
+
+               <div class="dashboard-card room-details" id="card-room">
+               <h4>Your Room Details</h4>
+               <ul>
+               <li><strong>Room Number:</strong> <span id="room-number">--</span></li>
+               <li><strong>Room Type:</strong> <span id="room-type">--</span></li>
+               <li><strong>Daily Rate:</strong> ₹<span id="room-rate">--</span></li>
+               <li><strong>WiFi Password:</strong> <span id="wifi-password">--</span></li>
+               </ul>
+               </div>
+
+
+               <div class="dashboard-card" id="card-billing">
+               <h4>Billing Summary</h4>
+               <p><strong>Total Nights:</strong> <span id="bill-nights">--</span></p>
+               <p><strong>Total Amount:</strong> ₹<span id="bill-total">--</span></p>
+               <button class="btn-user-login" onclick="downloadInvoice()">📄 Download Invoice</button>
+               </div>
+                
+            </div>
+            
+            <div class="section">
+                <h2>Need Assistance?</h2>
+                <p>Our dedicated front desk staff is available 24 hours a day to assist you with any inquiries or requests. Use the Contact Front Desk button on the left or dial 0 on your room phone.</p>
+            </div>
+        </div>
+
+    </div>
+
+    <footer>
+        &copy; 2025 HMS Deluxe. All rights reserved.
+    </footer>
+  
+    <script>
+    // ⭐ Load username from login
+    const name = localStorage.getItem("guestUsername");
+
+    if (name) {
+      document.getElementById("guestName").textContent = "Welcome, " + name + "";
+    }
+    </script>
+
+    <script>
+    const loggedUser = localStorage.getItem("guestUsername");
+
+    if (loggedUser) {
+      document.getElementById("welcomeUser").textContent = "Hello, " + loggedUser + "";
+    }
+    </script>
+
+    <script>
+      // ⭐ STEP 3 — Load user-specific booking ID
+      const user = localStorage.getItem("guestUsername");
+      const userBookingId = localStorage.getItem(`lastBookingId_${user}`);
+    </script>
+
+    <!-- ⭐ ADD YOUR BOOKING-STATUS CHECK SCRIPT HERE -->
+    <script>
+    async function checkBookingStatus() {
+      const username = localStorage.getItem("guestUsername");
+
+      const res = await fetch(`http://localhost:5000/check-active-booking?username=${username}`);
+      const data = await res.json();
+
+      // Your Book New Stay button
+      const btn = document.querySelector(".dash-link-book");  // ← your correct selector
+
+      if (data.active) {
+        btn.style.opacity = "0.6";
+        btn.style.pointerEvents = "none";
+        btn.innerText = "Already Booked";
+      } else {
+        btn.style.opacity = "1";
+          btn.style.pointerEvents = "auto";
+          btn.innerText = "Book New Stay";
+        }
+    }
+    document.addEventListener("DOMContentLoaded", checkBookingStatus);
+    </script>
+
+    <script>
+    async function disableButtonsIfNoBooking() {
+      const username = localStorage.getItem("guestUsername");
+
+      const res = await fetch(`http://localhost:5000/check-active-booking?username=${username}`);
+      const data = await res.json();
+
+      // Select buttons
+      const btnContact  = document.getElementById("btn-contact");
+      const btnReview   = document.getElementById("btn-review");
+      const btnCancel   = document.getElementById("btn-cancel");
+
+      if (!data.active) {
+        // Disable all other buttons
+        [btnContact, btnReview, btnCancel].forEach(btn => {
+            btn.style.opacity = "0.6";
+            btn.style.pointerEvents = "none";
+            btn.style.filter = "greenscale(100%)";
+        });
+      } else {
+        // Enable if user has booking
+        [btnContact, btnReview, btnCancel].forEach(btn => {
+            btn.style.opacity = "1";
+            btn.style.pointerEvents = "auto";
+            btn.style.filter = "none";
+        });
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", disableButtonsIfNoBooking);
+    </script>
+
+    <script>
+async function loadUserBookingDetails() {
+    const username = localStorage.getItem("guestUsername");
+
+    const res = await fetch(`http://localhost:5000/get-booking-details?username=${username}`);
+    const data = await res.json();
+
+    if (!data.success) {
+        // no booking → clear cards
+        document.getElementById("res-bookingId").textContent = "--";
+        document.getElementById("res-checkin").textContent = "--";
+        document.getElementById("res-checkout").textContent = "--";
+        document.getElementById("res-status").textContent = "No active booking";
+
+        document.getElementById("room-number").textContent = "--";
+        document.getElementById("room-type").textContent = "--";
+        document.getElementById("room-rate").textContent = "--";
+
+        document.getElementById("bill-nights").textContent = "--";
+        document.getElementById("bill-total").textContent = "--";
+        return;
+    }
+
+    const b = data.booking;
+
+    // Reservation card
+    document.getElementById("res-bookingId").textContent = b.bookingId;
+    document.getElementById("res-checkin").textContent = b.checkin;
+    document.getElementById("res-checkout").textContent = b.checkout;
+    document.getElementById("res-status").textContent = "Active & Confirmed";
+
+    // Room Details
+    // Room Details
+    document.getElementById("room-number").textContent = b.roomNumber;
+    document.getElementById("room-type").textContent = `${b.roomType} (${b.acType})`;
+    document.getElementById("room-rate").textContent = b.rate;
+
+    // WiFi PASSWORD generation
+    let wifiPwd = "HMS";
+
+    if (b.acType === "AC") {
+      wifiPwd += "AC";
+    } else {
+      wifiPwd += "NONAC";
+    }
+
+    wifiPwd += b.roomNumber; // add room number
+
+    document.getElementById("wifi-password").textContent = wifiPwd;
+
+    // Billing Summary
+    document.getElementById("bill-nights").textContent = b.nights;
+    document.getElementById("bill-total").textContent = b.total;
+}
+
+document.addEventListener("DOMContentLoaded", loadUserBookingDetails);
+</script>
+
+<script>
+async function downloadInvoice() {
+
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+
+    // Fetch details from page
+    let bookingId = document.getElementById("res-bookingId").textContent;
+    let checkin = document.getElementById("res-checkin").textContent;
+    let checkout = document.getElementById("res-checkout").textContent;
+    let status = document.getElementById("res-status").textContent;
+
+    let roomNo = document.getElementById("room-number").textContent;
+    let roomType = document.getElementById("room-type").textContent;
+    let rate = document.getElementById("room-rate").textContent;
+
+    let wifi = document.getElementById("wifi-password").textContent;
+    let nights = document.getElementById("bill-nights").textContent;
+    let total = document.getElementById("bill-total").textContent;
+
+    let username = localStorage.getItem("guestUsername") || "Guest";
+
+    // -------------------------------------------------------
+    // HEADER
+    // -------------------------------------------------------
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(20);
+    doc.text("HMS DELUXE", 85, 15);
+
+    doc.setFontSize(12);
+    doc.text("OFFICIAL GUEST INVOICE", 81, 22);
+
+    doc.setFont("helvetica", "normal");
+    doc.text("--------------------------------------------------------------", 14, 28);
+
+    // -------------------------------------------------------
+    // GUEST INFORMATION (BOLD HEADER)
+    // -------------------------------------------------------
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(14);
+    doc.text("[ GUEST INFORMATION ]", 14, 38);
+
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(12);
+    doc.text(`Guest Name     : ${username}`, 14, 48);
+    doc.text(`WiFi Password  : ${wifi}`, 14, 56);
+
+    // -------------------------------------------------------
+    // BOOKING INFORMATION (BOLD HEADER)
+    // -------------------------------------------------------
+    doc.text("--------------------------------------------------------------", 14, 66);
+
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(14);
+    doc.text("[ BOOKING INFORMATION ]", 14, 76);
+
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(12);
+    doc.text(`Booking ID   : ${bookingId}`, 14, 86);
+    doc.text(`Check-in     : ${checkin}`, 14, 94);
+    doc.text(`Check-out    : ${checkout}`, 14, 102);
+    doc.text(`Status       : ${status}`, 14, 110);
+
+    // -------------------------------------------------------
+    // ROOM DETAILS (BOLD HEADER)
+    // -------------------------------------------------------
+    doc.setFont("helvetica", "normal");
+    doc.text("--------------------------------------------------------------", 14, 120);
+
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(14);
+    doc.text("[ ROOM DETAILS ]", 14, 130);
+
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(12);
+    doc.text(`Room Number : ${roomNo}`, 14, 140);
+    doc.text(`Room Type   : ${roomType}`, 14, 148);
+    doc.text(`Daily Rate  : ₹${rate}`, 14, 156);
+
+    // -------------------------------------------------------
+    // BILLING SUMMARY (BOLD HEADER)
+    // -------------------------------------------------------
+    doc.text("--------------------------------------------------------------", 14, 166);
+
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(14);
+    doc.text("[ BILLING SUMMARY ]", 14, 176);
+
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(12);
+    doc.text(`Total Nights : ${nights}`, 14, 186);
+    doc.text(`Total Amount : ₹${total}`, 14, 194);
+
+    // -------------------------------------------------------
+    // FOOTER
+    // -------------------------------------------------------
+    doc.text("--------------------------------------------------------------", 14, 204);
+
+    doc.setFont("helvetica", "bold");
+    doc.text("Thank you for choosing HMS Deluxe!", 14, 214);
+
+    // SAVE FILE
+    doc.save(`Invoice_${bookingId}.pdf`);
+}
+</script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+
+</body>
+</html>

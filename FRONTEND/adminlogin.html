@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login</title>
+    <link rel="stylesheet" href="adminlogin.css">
+</head>
+<body>
+    <header><div class="logo">🏨 HMS Deluxe</div>
+        <!-- ✅ Back Button Added -->
+        <button class="btn-back-home" onclick="window.location.href='index.html'">Back to Home</button>
+    </header>
+
+    <div class="container" style="justify-content: center;">
+        <div class="action-hub" style="width: 400px; padding: 40px;">
+            <h3>Admin Access Portal</h3>
+            <p style="color: #f44336; font-weight: bold;">(Restricted Access)</p>
+
+            <!-- LOGIN FORM -->
+            <form id="adminLoginForm">
+                <input type="text" id="adminUser" name="admin_username" placeholder="Admin Username" required>
+                <input type="password" id="adminPass" name="admin_password" placeholder="Password" required>
+                
+                <button type="submit" class="btn-admin-login">Admin Login</button>
+            </form>
+        </div>
+    </div>
+
+    <footer>&copy; 2025 HMS Deluxe. All rights reserved.</footer>
+
+    <!-- ✅ ADMIN LOGIN VALIDATION SCRIPT -->
+    <script>
+        document.getElementById("adminLoginForm").addEventListener("submit", function(event) {
+            event.preventDefault();
+
+            let user = document.getElementById("adminUser").value.trim();
+            let pass = document.getElementById("adminPass").value.trim();
+
+            // ✅ Correct Login Credentials
+            const correctUser = "Ans";
+            const correctPass = "Neha@shiva679";
+
+            if (user === correctUser && pass === correctPass) {
+                window.location.href = "adminhome.html"; // SUCCESS
+            } else {
+                alert("❌ Incorrect Username or Password!");
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Service Requests - HMS Deluxe</title>
+  <link rel="stylesheet" href="request.css" />
+</head>
+
+<body>
+
+<header>
+    <div class="logo">🏨 HMS Deluxe</div>
+    <nav>
+        <button class="btn-home" onclick="location.href='userhome.html'">🏠 Dashboard</button>
+    </nav>
+</header>
+
+<div class="tabs">
+    <button class="tab-btn active" onclick="showTab('serviceTab')">🛎 Room Service</button>
+    <button class="tab-btn" onclick="showTab('houseTab')">🧼 Housekeeping</button>
+</div>
+
+<!-- ================= ROOM SERVICE TAB ================= -->
+<div id="serviceTab" class="tab-content active">
+
+    <main class="container">
+      <div class="action-card">
+        <h2>Request Room Service</h2>
+
+        <form id="roomServiceForm">
+
+          <label>Room Number</label>
+          <input id="room-number" type="number" required readonly style="pointer-events:none; background:#e9e9e9;">
+
+          <label>Room Service Category</label>
+          <select id="service-type" onchange="updateSubService()" required>
+              <option value="">-- Select Service Type --</option>
+              <option value="fnb">Food & Beverage (In-Room Dining)</option>
+              <option value="amenities">Room Amenities Delivery</option>
+              <option value="technical">Technical / Maintenance Requests</option>
+              <option value="comfort">Guest Comfort & Special Requests</option>
+          </select>
+
+          <div id="subServiceContainer" style="display:none;">
+            <label>Sub Category</label>
+            <select id="sub-service">
+            <option value="">-- Select Option --</option>
+            </select>
+          </div>
+
+          <div id="detailServiceContainer" style="display:none;">
+            <label>Detailed Options</label>
+            <select id="detail-service">
+            <option value="">-- Select Option --</option>
+            </select>
+          </div>
+
+          <label>Other Details (optional)</label>
+          <textarea id="other-req" rows="3"></textarea>
+
+          <button type="submit" class="btn-submit">Submit Room Service</button>
+
+        </form>
+      </div>
+    </main>
+
+</div>
+
+<!-- ================= HOUSEKEEPING TAB ================= -->
+<div id="houseTab" class="tab-content">
+
+    <main class="container">
+      <div class="action-card">
+        <h2>Request Housekeeping</h2>
+
+        <form id="housekeepingForm">
+
+          <label>Room Number</label>
+          <input id="hk-room-number" type="number" required readonly style="pointer-events:none; background:#e9e9e9;">
+
+          <label>Housekeeping Category</label>
+          <select id="hk-type" onchange="updateHousekeepingDetails()" required>
+            <option value="">-- Select Housekeeping Service --</option>
+            <option value="cleaning">Room Cleaning Services</option>
+            <option value="towel">Towel & Bathroom Linen Requests</option>
+            <option value="toiletries">Toiletries & Bathroom Amenities</option>
+            <option value="laundry">Laundry & Clothing Services</option>
+            <option value="celebration">Celebration & Decoration Requests</option>
+          </select>
+
+          <div id="hkDetailContainer" style="display:none;">
+            <label>Detailed Option</label>
+            <select id="hk-detail">
+            <option value="">-- Select Option --</option>
+            </select>
+          </div>
+
+          <label>Additional Notes</label>
+          <textarea id="hk-notes" rows="3"></textarea>
+
+          <button type="submit" class="btn-submit">Submit Housekeeping Request</button>
+
+        </form>
+      </div>
+    </main>
+
+</div>
+
+<footer>© 2025 HMS Deluxe. All rights reserved.</footer>
+
+<script>
+
+function showTab(tabName) {
+    document.querySelectorAll(".tab-btn").forEach(btn => btn.classList.remove("active"));
+    document.querySelectorAll(".tab-content").forEach(tab => tab.classList.remove("active"));
+
+    event.target.classList.add("active");
+    document.getElementById(tabName).classList.add("active");
+}
+
+// ROOM SERVICE SUBMIT (Updated with kitchen rules)
+document.getElementById("roomServiceForm").addEventListener("submit", function (e) {
+    e.preventDefault();
+
+    const username = localStorage.getItem("guestUsername") || "Guest";
+    const room = document.getElementById("room-number").value;
+    const mainType = document.getElementById("service-type").value;
+    const subType = document.getElementById("sub-service").value;
+    const detail = document.getElementById("detail-service").value;
+    const notes = document.getElementById("other-req").value.trim();
+
+    const fullService = detail + (notes ? ` (${notes})` : "");
+
+    const now = new Date();
+    const time = now.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+
+    // RULES:
+    // Food & Beverage -> always send
+    // Amenities -> only teaCoffee or waterSnacks sent
+
+   // SEND TO KITCHEN?
+let sendToKitchen = false;
+
+// SEND TO STAFF?
+let sendToStaff = false;
+
+
+// ======================== KITCHEN LOGIC ========================
+if (mainType === "fnb") {
+    sendToKitchen = true;
+}
+else if (mainType === "amenities") {
+    if (subType === "teaCoffee" || subType === "waterSnacks") {
+        sendToKitchen = true;
+    } else if (subType === "basics") {
+        sendToStaff = true;
+    }
+}
+else if (mainType === "technical") {
+    sendToStaff = true;
+}
+else if (mainType === "comfort") {
+    sendToStaff = true;
+}
+
+
+// ======================== SEND TO KITCHEN ========================
+if (sendToKitchen) {
+    const foodReq = {
+        user: username,
+        room: room,
+        food: fullService,
+        time: time,
+        status: "Pending"
+    };
+
+    let kitchenList = JSON.parse(localStorage.getItem("kitchenRequests")) || [];
+    kitchenList.push(foodReq);
+    localStorage.setItem("kitchenRequests", JSON.stringify(kitchenList));
+}
+
+
+// ======================== SEND TO STAFF ========================
+if (sendToStaff) {
+    const staffReq = {
+        user: username,
+        room: room,
+        work: fullService,
+        time: time,
+        status: "Pending"
+    };
+
+    let staffList = JSON.parse(localStorage.getItem("staffRequests")) || [];
+    staffList.push(staffReq);
+    localStorage.setItem("staffRequests", JSON.stringify(staffList));
+}
+
+// SEND TO FRONT DESK (only non-kitchen services)
+if (!sendToKitchen) {
+    const frontdeskReq = {
+        user: username,
+        room: room,
+        service: fullService,
+        time: time,
+        status: "Pending"
+    };
+
+    let fdList = JSON.parse(localStorage.getItem("frontdeskService")) || [];
+    fdList.push(frontdeskReq);
+    localStorage.setItem("frontdeskService", JSON.stringify(fdList));
+}
+
+    alert("Room service request submitted!");
+    window.location.href = "userhome.html";
+});
+
+document.getElementById("housekeepingForm").addEventListener("submit", function(e) {
+    e.preventDefault();
+
+    const username = localStorage.getItem("guestUsername") || "Guest";
+    const room = document.getElementById("hk-room-number").value;
+    const category = document.getElementById("hk-type").value;
+    const detail = document.getElementById("hk-detail").value;
+    const notes = document.getElementById("hk-notes").value.trim();
+
+    const fullService = detail + (notes ? ` (${notes})` : "");
+
+    const now = new Date();
+    const time = now.toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' });
+
+    const newReq = {
+        user: username,
+        room: room,
+        service: fullService,
+        time: time,
+        status: "Pending"
+    };
+
+    let stored = JSON.parse(localStorage.getItem("hkRequests")) || [];
+    stored.push(newReq);
+
+    localStorage.setItem("hkRequests", JSON.stringify(stored));
+
+    alert("Housekeeping request submitted!");
+    window.location.href = "userhome.html";
+});
+
+function limitRoomNumber(input) {
+    if (input.value.length > 3) {
+        input.value = input.value.slice(0, 3);
+    }
+}
+</script>
+
+<script>
+function updateSubService() {
+    const mainType = document.getElementById("service-type").value;
+    const sub = document.getElementById("sub-service");
+    const container = document.getElementById("subServiceContainer");
+
+    const detailContainer = document.getElementById("detailServiceContainer");
+    const detail = document.getElementById("detail-service");
+
+    // RESET
+    sub.innerHTML = "";
+    detail.innerHTML = "";
+    container.style.display = "none";
+    detailContainer.style.display = "none";
+    
+    // REMOVE required first
+    sub.required = false;
+    detail.required = false;
+
+    // -----------------------------------------
+    // CASE 1 — DIRECT LEVEL 3 (NO SUB) REQUIRED
+    // -----------------------------------------
+    if (mainType === "technical") {
+        detailContainer.style.display = "block";
+        detail.required = true;
+
+        detail.innerHTML = `
+          <option value="">-- Select Option --</option>
+          <option>TV not working</option>
+          <option>AC not cooling / heating</option>
+          <option>Light repair</option>
+          <option>Hot water issue</option>
+          <option>Charging point not working</option>
+          <option>WiFi connection help</option>
+          <option>Telephone issues</option>
+        `;
+        return;
+    }
+
+    if (mainType === "comfort") {
+        detailContainer.style.display = "block";
+        detail.required = true;
+
+        detail.innerHTML = `
+          <option value="">-- Select Option --</option>
+          <option>Extra bed / mattress</option>
+          <option>Baby cradle / cot</option>
+          <option>Baby diaper changing mat</option>
+          <option>Iron & ironing board</option>
+          <option>Hair dryer</option>
+          <option>Wheelchair</option>
+          <option>Sewing kit</option>
+          <option>First aid box</option>
+          <option>Ice bucket</option>
+          <option>Newspaper selection</option>
+        `;
+        return;
+    }
+
+    // -----------------------------------------
+    // CASE 2 — NORMAL 3-LEVEL SYSTEM
+    // -----------------------------------------
+    if (mainType === "") return;
+
+    container.style.display = "block";
+    sub.required = true;     // LEVEL 2 REQUIRED
+
+    sub.innerHTML = '<option value="">-- Select Option --</option>';
+
+    if (mainType === "fnb") {
+        sub.innerHTML += `<option value="meals">Main Meals</option>`;
+        sub.innerHTML += `<option value="snacks">Snacks</option>`;
+        sub.innerHTML += `<option value="desserts">Desserts</option>`;
+        sub.innerHTML += `<option value="beverages">Beverages</option>`;
+    }
+
+    if (mainType === "amenities") {
+        sub.innerHTML += `<option value="basics">Basics</option>`;
+        sub.innerHTML += `<option value="teaCoffee">Tea/Coffee Items</option>`;
+        sub.innerHTML += `<option value="waterSnacks">Water & Snacks</option>`;
+    }
+
+    // LEVEL 3
+    sub.onchange = function () {
+        const subVal = sub.value;
+
+        detail.innerHTML = '<option value="">-- Select Option --</option>';
+        detailContainer.style.display = "none";
+        detail.required = false;
+
+        if (subVal === "") {
+            return;
+        }
+
+        detailContainer.style.display = "block";
+        detail.required = true;    // LEVEL 3 REQUIRED
+
+        if (subVal === "meals") {
+            detail.innerHTML += `<option>Breakfast</option>`;
+            detail.innerHTML += `<option>Lunch</option>`;
+            detail.innerHTML += `<option>Dinner</option>`;
+            detail.innerHTML += `<option>Kids meals</option>`;
+            detail.innerHTML += `<option>Diet / healthy meals</option>`;
+        }
+
+        if (subVal === "snacks") {
+            detail.innerHTML += `<option>Sandwiches</option>`;
+            detail.innerHTML += `<option>Burgers</option>`;
+            detail.innerHTML += `<option>Fries</option>`;
+            detail.innerHTML += `<option>Pizza</option>`;
+            detail.innerHTML += `<option>Finger foods</option>`;
+            detail.innerHTML += `<option>Nachos</option>`;
+        }
+
+        if (subVal === "desserts") {
+            detail.innerHTML += `<option>Ice cream</option>`;
+            detail.innerHTML += `<option>Cakes & pastries</option>`;
+            detail.innerHTML += `<option>Brownie</option>`;
+            detail.innerHTML += `<option>Fruit bowl</option>`;
+        }
+
+        if (subVal === "beverages") {
+            detail.innerHTML += `<option>Tea / Coffee</option>`;
+            detail.innerHTML += `<option>Hot chocolate</option>`;
+            detail.innerHTML += `<option>Soft drinks</option>`;
+            detail.innerHTML += `<option>Juices</option>`;
+            detail.innerHTML += `<option>Milk</option>`;
+            detail.innerHTML += `<option>Shakes</option>`;
+            detail.innerHTML += `<option>Mineral water</option>`;
+        }
+
+        if (subVal === "basics") {
+            detail.innerHTML += `<option>Towels</option>`;
+            detail.innerHTML += `<option>Extra pillows</option>`;
+            detail.innerHTML += `<option>Extra blankets</option>`;
+            detail.innerHTML += `<option>Extra bedsheets</option>`;
+            detail.innerHTML += `<option>Slippers</option>`;
+            detail.innerHTML += `<option>Bathrobe</option>`;
+        }
+
+        if (subVal === "teaCoffee") {
+            detail.innerHTML += `<option>Coffee sachets</option>`;
+            detail.innerHTML += `<option>Tea bags</option>`;
+            detail.innerHTML += `<option>Sugar</option>`;
+            detail.innerHTML += `<option>Creamer</option>`;
+        }
+
+        if (subVal === "waterSnacks") {
+            detail.innerHTML += `<option>Extra water bottle</option>`;
+            detail.innerHTML += `<option>Welcome snacks</option>`;
+            detail.innerHTML += `<option>Minibar refill</option>`;
+        }
+    };
+}
+</script>
+
+<script>
+function updateHousekeepingDetails() {
+    const type = document.getElementById("hk-type").value;
+    const container = document.getElementById("hkDetailContainer");
+    const detail = document.getElementById("hk-detail");
+
+    // RESET
+    detail.innerHTML = "";
+    container.style.display = "none";
+    detail.required = false;
+
+    if (type === "") return;
+
+    container.style.display = "block";
+    detail.required = true;
+
+    detail.innerHTML = `<option value="">-- Select Option --</option>`;
+
+    // ------------------ ROOM CLEANING ------------------
+    if (type === "cleaning") {
+        detail.innerHTML += `<option>Complete room cleaning</option>`;
+        detail.innerHTML += `<option>Bathroom cleaning</option>`;
+        detail.innerHTML += `<option>Bed making / remake bed</option>`;
+        detail.innerHTML += `<option>Deep cleaning</option>`;
+        detail.innerHTML += `<option>Trash removal</option>`;
+        detail.innerHTML += `<option>Carpet vacuuming</option>`;
+        detail.innerHTML += `<option>Floor mopping</option>`;
+    }
+
+    // ------------------ TOWEL & LINEN ------------------
+    if (type === "towel") {
+        detail.innerHTML += `<option>Bath towel</option>`;
+        detail.innerHTML += `<option>Hand towel</option>`;
+        detail.innerHTML += `<option>Face towel</option>`;
+        detail.innerHTML += `<option>Bath mat</option>`;
+        detail.innerHTML += `<option>Towel replacement (all kinds)</option>`;
+    }
+
+    // ------------------ TOILETRIES ------------------
+    if (type === "toiletries") {
+        detail.innerHTML += `<option>Soap</option>`;
+        detail.innerHTML += `<option>Shampoo</option>`;
+        detail.innerHTML += `<option>Conditioner</option>`;
+        detail.innerHTML += `<option>Body wash</option>`;
+        detail.innerHTML += `<option>Body lotion</option>`;
+        detail.innerHTML += `<option>Dental kit</option>`;
+        detail.innerHTML += `<option>Shaving kit</option>`;
+        detail.innerHTML += `<option>Comb</option>`;
+        detail.innerHTML += `<option>Shower cap</option>`;
+        detail.innerHTML += `<option>Loofah</option>`;
+        detail.innerHTML += `<option>Sanitary napkins</option>`;
+        detail.innerHTML += `<option>Toilet paper roll</option>`;
+        detail.innerHTML += `<option>Facial tissues</option>`;
+    }
+
+    // ------------------ LAUNDRY ------------------
+    if (type === "laundry") {
+        detail.innerHTML += `<option>Laundry pickup</option>`;
+        detail.innerHTML += `<option>Iron & ironing board</option>`;
+        detail.innerHTML += `<option>Pressing (only ironing)</option>`;
+        detail.innerHTML += `<option>Dry cleaning</option>`;
+        detail.innerHTML += `<option>Stain removal service</option>`;
+    }
+
+    // ------------------ CELEBRATION ------------------
+    if (type === "celebration") {
+        detail.innerHTML += `<option>Birthday decoration</option>`;
+        detail.innerHTML += `<option>Anniversary decoration</option>`;
+        detail.innerHTML += `<option>Surprise cake delivery</option>`;
+        detail.innerHTML += `<option>Candlelight dinner in room</option>`;
+        detail.innerHTML += `<option>Flower bouquet</option>`;
+        detail.innerHTML += `<option>Balloon decoration</option>`;
+    }
+
+    // ------------------ MAINTENANCE ------------------
+    if (type === "technical") {
+        detail.innerHTML += `<option>Light repair</option>`;
+        detail.innerHTML += `<option>AC not cooling / heating</option>`;
+        detail.innerHTML += `<option>Plumbing issue</option>`;
+        detail.innerHTML += `<option>Hot water issue</option>`;
+        detail.innerHTML += `<option>Charging point not working</option>`;
+        detail.innerHTML += `<option>Door lock problem</option>`;
+    }
+}
+</script>
+
+<script>
+window.onload = () => {
+    const user = localStorage.getItem("guestUsername");
+    const lastRoom = localStorage.getItem(`lastBookedRoom_${user}`);
+
+    if (lastRoom) {
+        const roomInput = document.getElementById("room-number");
+        if (roomInput) roomInput.value = lastRoom;
+
+        const hkRoom = document.getElementById("hk-room-number");
+        if (hkRoom) hkRoom.value = lastRoom;
+    }
+};
+</script>
+</body>
+</html>

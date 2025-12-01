@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Kitchen Dashboard - HMS Deluxe</title>
+  <link rel="stylesheet" href="dashboard.css" />
+</head>
+
+<body>
+
+<header class="header">
+  <div class="brand">
+    <div class="logo">🍳</div>
+    <h1>HMS Deluxe — Kitchen</h1>
+  </div>
+  <div>
+    <button class="btn" onclick="location.href='logindesk.html'">Login Desk</button>
+  </div>
+</header>
+
+
+<div class="page">
+
+  <aside class="sidebar">
+    <h3>Kitchen Menu</h3>
+    <div class="menu-section">
+      <button class="menu-btn" onclick="document.getElementById('orders').scrollIntoView()">🧾 Orders</button>
+      <button class="menu-btn" onclick="document.getElementById('prep').scrollIntoView()">🍽️ Prep Queue</button>
+    </div>
+  </aside>
+
+
+  <main class="main">
+
+    <div class="title-row">
+      <div>
+        <h2>🍽️ Live Kitchen Orders</h2>
+        <div class="sub">Food & beverage requests from guests</div>
+      </div>
+      <div class="controls">
+        <button class="btn" onclick="acceptAll()">Accept All</button>
+        <button class="btn ghost" onclick="location.reload()">Refresh</button>
+      </div>
+    </div>
+
+
+    <!-- INCOMING ORDERS -->
+    <div id="orders" class="card">
+      <h3 style="margin-top:0">Incoming Orders</h3>
+
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Guest</th>
+            <th>Room</th>
+            <th>Items</th>
+            <th>Time</th>
+            <th>Status</th>
+            <th></th>
+          </tr>
+        </thead>
+
+        <tbody id="kitchen-orders-body"></tbody>
+      </table>
+    </div>
+
+
+    <!-- PREP QUEUE -->
+    <div id="prep" class="card">
+      <h3 style="margin-top:0">Prep Queue</h3>
+      <ul id="prepList"></ul>
+    </div>
+
+  </main>
+
+</div>
+
+
+<footer>© 2025 HMS Deluxe. All rights reserved.</footer>
+
+
+<script>
+
+// LOAD KITCHEN ORDERS
+window.onload = () => {
+  loadKitchenOrders();
+};
+
+
+function loadKitchenOrders() {
+  const data = JSON.parse(localStorage.getItem("kitchenRequests")) || [];
+  const tbody = document.getElementById("kitchen-orders-body");
+  tbody.innerHTML = "";
+
+  data.forEach(req => {
+    tbody.innerHTML += `
+      <tr>
+        <td>${req.user}</td>
+        <td>${req.room}</td>
+        <td>${req.food}</td>
+        <td>${req.time}</td>
+        <td class="${req.status === 'Pending' ? 'status-pending' : 'status-done'}">${req.status}</td>
+        <td>
+          ${req.status === "Pending" ? 
+            `<button class="small" onclick="acceptOrder(this)">Accept</button>` 
+          : ""}
+        </td>
+      </tr>
+    `;
+  });
+}
+
+
+// ACCEPT ONE ORDER
+function acceptOrder(btn) {
+  const tr = btn.closest("tr");
+  const guest = tr.children[0].textContent;
+  const room  = tr.children[1].textContent;
+  const food  = tr.children[2].textContent;
+
+  tr.children[4].textContent = "Accepted";
+  tr.children[4].className  = "status-done";
+  btn.remove();
+
+  // ADD TO PREP
+  const li = document.createElement("li");
+  li.textContent = `${food} — Preparing`;
+  document.getElementById("prepList").appendChild(li);
+
+  // UPDATE LOCAL STORAGE
+  updateKitchenStatus(guest, room, food, "Accepted");
+}
+
+
+// ACCEPT ALL
+function acceptAll() {
+  const data = JSON.parse(localStorage.getItem("kitchenRequests")) || [];
+
+  data.forEach(req => req.status = "Accepted");
+  localStorage.setItem("kitchenRequests", JSON.stringify(data));
+
+  alert("All orders moved to Prep Queue.");
+  location.reload();
+}
+
+
+// UPDATE STATUS IN STORAGE
+function updateKitchenStatus(user, room, food, status) {
+  let data = JSON.parse(localStorage.getItem("kitchenRequests")) || [];
+
+  data = data.map(r => {
+    if (r.user === user && r.room === room && r.food === food) {
+      r.status = status;
+    }
+    return r;
+  });
+
+  localStorage.setItem("kitchenRequests", JSON.stringify(data));
+}
+
+</script>
+
+</body>
+</html>

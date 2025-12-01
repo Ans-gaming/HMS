@@ -1,0 +1,234 @@
+/* --- 1. GENERAL STYLING --- */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    padding: 0;
+
+    /* Background Image */
+    background: url("C:\\Hotel MS\\images\\login.jpg") no-repeat center center fixed;
+    background-size: 1600px 750px;
+
+    color: #333;
+    line-height: 1.6;
+    
+    /* Page fade-in animation */
+    animation: fadeInBody 1s ease-in-out;
+}
+
+/* Dark overlay for professional effect */
+body::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.55);
+    backdrop-filter: blur(4px);
+    z-index: -1;
+}
+
+@keyframes fadeInBody {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+a {
+    text-decoration: none;
+    color: #2196f3;
+    transition: color 0.2s, text-shadow 0.2s;
+}
+
+a:hover {
+    text-decoration: underline;
+    color: #0d47a1;
+    text-shadow: 0 0 6px #060202;
+}
+
+/* --- 2. HEADER & LOGO --- */
+header {
+    background-color: #1a237e;
+    color: white;
+    padding: 15px 30px;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    animation: slideDown 0.7s ease-out;
+}
+
+@keyframes slideDown {
+    from { transform: translateY(-40px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+.logo {
+    font-size: 1.8em;
+    font-weight: 700;
+}
+
+/* Back Button */
+header button {
+    background: #ffffff33;
+    color: white;
+    border: none;
+    padding: 10px 14px;
+    position: absolute;
+    right: 20px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: 0.3s ease;
+}
+
+header button:hover {
+    background: white;
+    color: #1a237e;
+    transform: scale(1.05);
+}
+
+/* --- 3. LAYOUT & CONTAINER --- */
+.container {
+    width: 100%;
+    max-width: 1200px;
+    margin: 40px auto;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    min-height: 70vh;
+}
+
+/* --- 4. LOGIN BOX (ACTION-HUB) --- */
+.action-hub {
+    width: 400px;
+    padding: 40px;
+    text-align: center;
+
+    /* Glassmorphism */
+    background-color: rgba(255, 255, 255, 0.25);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.35);
+
+    border-radius: 15px;
+    box-shadow: 0 6px 25px rgba(0, 0, 0, 0.25);
+
+    animation: slideUp 0.9s ease-out;
+}
+
+@keyframes slideUp {
+    from { transform: translateY(40px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+.action-hub h3 {
+    margin-top: 0;
+    font-size: 2em;
+    color: #0008ff;
+    text-align: center;
+    /* font-weight: bold; */
+    margin-bottom: 25px;
+    text-shadow: 1px 1px 3px black;
+}
+
+/* Subtitle Text */
+.action-hub p {
+    margin-top: 18px;
+    font-size: 0.9em;
+    font-weight: bold;
+    color: #fff;
+    text-shadow: 1px 1px 3px black;
+}
+
+.action-hub p a {
+    color: #00b7ff;
+}
+
+/* --- 5. INPUT FIELDS --- */
+.action-hub input {
+    width: calc(100% - 20px);
+    padding: 12px;
+    margin: 12px 0;
+
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 1em;
+
+    box-sizing: border-box;
+
+    transition: 0.3s ease;
+}
+
+.action-hub input:focus {
+    border-color: #4caf50;
+    outline: none;
+    transform: scale(1.03);
+    box-shadow: 0 0 6px rgba(76, 175, 80, 0.5);
+}
+
+/* --- 6. LOGIN BUTTON (.btn-user-login) --- */
+.btn-user-login {
+    width: 100%;
+    padding: 12px;
+
+    margin-top: 20px;
+    border: none;
+    border-radius: 50px;
+
+    background-color: #4caf50;
+    color: white;
+    font-size: 1.1em;
+    font-weight: 600;
+    cursor: pointer;
+
+    transition: 0.3s ease;
+}
+
+.btn-user-login:hover {
+    background-color: #45a049;
+    transform: scale(1.06);
+    box-shadow: 0 6px 15px rgba(0,0,0,0.35);
+}
+
+/* --- 7. FOOTER --- */
+footer {
+    background-color: #1a237e;
+    color: white;
+    text-align: center;
+    padding: 10px 0;
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    box-shadow: 0 -2px 10px rgba(0,0,0,0.3);
+}
+
+/* Placeholder Styling */
+::placeholder {
+    color: #00000093;
+    font-weight: bold;
+}
+
+.password-container {
+    position: relative;
+    width: 100%;
+}
+
+.password-container input {
+    width: 95;
+    padding-right: 45px;
+}
+
+.togglePassword {
+    position: absolute;
+    right: 18px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 18px;
+    color: #555;
+    cursor: pointer;
+    transition: 0.2s ease-in-out;
+}
+
+.togglePassword:hover {
+    color: #000;
+}

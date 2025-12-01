@@ -1,0 +1,337 @@
+/* ====================================================
+   GLOBAL RESET & BASE STYLE
+==================================================== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Poppins", sans-serif;
+}
+
+body {
+    background: linear-gradient(135deg, #eef2f7, #dbe4f5);
+    min-height: 100vh;
+    animation: fadeBody 0.6s ease-in-out;
+}
+
+@keyframes fadeBody {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* ====================================================
+   HEADER – Premium Gradient Bar
+==================================================== */
+.header {
+    background: linear-gradient(90deg, #1a237e, #0d47a1, #1565c0);
+    color: white;
+    padding: 18px 35px;
+    font-size: 22px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 4px 18px rgba(0,0,0,0.25);
+    position: sticky;
+    top: 0;
+    z-index: 999;
+    animation: slideDown 0.5s ease-out;
+}
+
+@keyframes slideDown {
+    from { transform: translateY(-30px); opacity: 0; }
+    to   { transform: translateY(0); opacity: 1; }
+}
+
+.logo {
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-shadow: 2px 3px 6px rgba(0,0,0,0.2);
+}
+
+.logout-btn {
+    background: rgba(255,255,255,0.2);
+    border: none;
+    color: white;
+    padding: 10px 16px;
+    border-radius: 50px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: 0.3s;
+    backdrop-filter: blur(4px);
+}
+
+.logout-btn:hover {
+    background: white;
+    color: #1a237e;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0,0,0,0.25);
+}
+
+/* ====================================================
+   LAYOUT – Sidebar & Content
+==================================================== */
+.layout {
+    display: flex;
+    padding: 30px;
+    gap: 25px;
+}
+
+/* ====================================================
+   SIDEBAR – Modern Glass Navigation
+==================================================== */
+.sidebar {
+    width: 260px;
+    background: rgba(255,255,255,0.75);
+    padding: 25px 20px;
+    border-radius: 16px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+    backdrop-filter: blur(10px);
+    animation: slideLeft 0.6s ease;
+}
+
+@keyframes slideLeft {
+    from { opacity: 0; transform: translateX(-25px); }
+    to   { opacity: 1; transform: translateX(0); }
+}
+
+.sidebar h3 {
+    margin-bottom: 16px;
+    color: #1a237e;
+    font-weight: 700;
+    font-size: 18px;
+}
+
+.sidebar button {
+    width: 100%;
+    padding: 14px;
+    margin: 10px 0;
+    border: none;
+    background: #e8eaf6;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 15px;
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    font-weight: 600;
+    transition: 0.3s;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.06);
+}
+
+.sidebar button:hover {
+    background: #c5cae9;
+    transform: translateX(6px);
+    box-shadow: 0 6px 18px rgba(0,0,0,0.12);
+}
+
+/* ====================================================
+   MAIN CONTENT – Premium White Panel
+==================================================== */
+.content {
+    flex: 1;
+    background: white;
+    padding: 35px;
+    border-radius: 16px;
+    box-shadow: 0 8px 26px rgba(0,0,0,0.08);
+    animation: fadeInContent 0.5s ease-in-out;
+}
+
+@keyframes fadeInContent {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+.section {
+    display: none;
+}
+
+.section.active {
+    display: block;
+    text-align: center;
+    animation: show 0.45s ease-in-out;
+}
+
+.section h2 {
+    color: #1a237e;
+    margin-bottom: 18px;
+}
+
+.section h3 {
+    color: #1a237e;
+    margin-bottom: 12px;
+}
+
+@keyframes show {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ====================================================
+   DASHBOARD CARDS – Modern & Animated
+==================================================== */
+.cards {
+    display: flex;
+    flex-wrap: wrap;     /* allow wrapping */
+    gap: 25px;
+    margin-top: 25px;
+    justify-content: center;
+}
+
+.card {
+    width: calc(50% - 25px); /* EXACT 2 cards per row */
+    background: linear-gradient(135deg, #fdfdff, #f3f6ff);
+    padding: 30px;
+    text-align: center;
+    border-radius: 18px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+    transition: 0.35s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Soft gradient bubble background */
+.card::before {
+    content: "";
+    position: absolute;
+    top: -50px;
+    right: -50px;
+    width: 140px;
+    height: 140px;
+    background: rgba(26, 35, 126, 0.10);
+    border-radius: 50%;
+    transition: 0.4s ease;
+}
+
+.card i {
+    font-size: 45px;
+    color: #1a237e;
+    margin-bottom: 12px;
+    transition: 0.3s ease;
+}
+
+.card h3 {
+    font-size: 20px;
+    color: #1a237e;
+}
+
+.card p {
+    font-size: 28px;
+    margin-top: 12px;
+    font-weight: 700;
+    color: #0d47a1;
+}
+
+/* 🔥 Hover Effects – Premium Feel */
+.card:hover {
+    transform: translateY(-12px) scale(1.02);
+    box-shadow: 0 18px 35px rgba(0,0,0,0.15);
+}
+
+.card:hover::before {
+    transform: scale(1.25);
+    background: rgba(26, 35, 126, 0.18);
+}
+
+.card:hover i {
+    color: #0d47a1;
+    transform: scale(1.10);
+}
+
+/* 📱 Mobile Responsive – 1 card per row */
+@media (max-width: 768px) {
+    .card {
+        width: 100%;
+    }
+}
+
+/* ====================================================
+   TABLES – Cleaner UI
+==================================================== */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 22px;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 8px 18px rgba(0,0,0,0.08);
+}
+
+table th {
+    background: #1a237e;
+    color: white;
+    padding: 12px;
+    text-align: center;
+    font-weight: 600;
+}
+
+table td {
+    padding: 12px;
+    background: #ffffff;
+    border-bottom: 1px solid #eee;
+    font-size: 15px;
+}
+
+table tr:hover td {
+    background: #e8eaf6;
+}
+
+/* ====================================================
+   FOOTER – Clean & Fixed
+==================================================== */
+footer {
+    text-align: center;
+    padding: 18px;
+    background: #1a237e;
+    color: white;
+    width: 100%;
+    margin-top: 30px;
+    position: relative;
+    font-size: 15px;
+    box-shadow: 0 -4px 18px rgba(0,0,0,0.25);
+}
+
+/* PERFECT GLOBAL FOOTER (always stays bottom) */
+footer {
+    background-color: #1a237e;
+    color: white;
+    text-align: center;
+    padding: 15px 0;
+    font-size: 0.95rem;
+
+    /* NEW FIXES */
+    position: relative;
+    bottom: 0;
+    width: 100%;
+
+    /* Smooth shadow */
+    box-shadow: 0 -4px 12px rgba(0,0,0,0.25);
+    margin-top: 40px;
+}
+
+/* Ensures the whole layout always pushes footer down */
+body, html {
+    height: 100%;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+}
+
+.layout {
+    flex: 1; /* This pushes footer to bottom */
+}
+
+/* Success (Green) */
+.status-success {
+    color: green;
+    font-weight: bold;
+    text-transform: capitalize;
+}
+
+/* Failed (Red) */
+.status-failed {
+    color: red;
+    font-weight: bold;
+    text-transform: capitalize;
+}

@@ -1,0 +1,219 @@
+body {
+    font-family: Arial, sans-serif;
+    background: url("C:\\Hotel MS\\images\\jobform.png") no-repeat center center fixed;
+    background-size: 120% 750px;
+    height: 100vh;
+    margin: 0;
+    padding: 0%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    animation: fadeIn 1.3s ease-in-out;
+}
+
+/* Dark blurred overlay */
+body::before {
+    content: "";
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.55);
+    backdrop-filter: blur(4px);
+    z-index: -1;
+    animation: smoothBlur 1.4s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes smoothBlur {
+    from { backdrop-filter: blur(0px); }
+    to { backdrop-filter: blur(4px); }
+}
+
+header {
+    width: 100%;
+    height: 65px;
+    padding: 0 25px;
+    background: rgba(26, 35, 126, 0.9);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 999;
+    right: 0;                 /* ensures full width */
+    z-index: 999;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    backdrop-filter: blur(4px);
+    box-sizing: border-box;   /* include padding in width */
+}
+
+
+.logo {
+    font-size: 24px;
+    color: white;
+    font-weight: bold;
+    letter-spacing: .5px;
+    text-shadow: 0 0 8px rgba(255,255,255,0.3);
+    white-space: nowrap;      /* prevent logo wrapping */
+}
+
+/* -------------- MAIN CONTAINER ------------------ */
+.container {
+    width: 380px;
+    margin-top: 30px !important;
+    background: rgba(255, 255, 255, 0.18);
+    padding: 28px;
+    border-radius: 14px;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 8px 35px rgba(0,0,0,0.25);
+    animation: slideUp 1s ease;
+}
+
+@keyframes slideUp {
+    from { opacity: 0; transform: translateY(25px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+h2 {
+     margin-top: 0;
+    font-size: 2em;
+    color: #0008ff;
+    text-align: center;
+    /* font-weight: bold; */
+    margin-bottom: 25px;
+    text-shadow: 1px 1px 3px black;
+}
+
+p {
+    color: #000000;
+    margin-bottom: 15px;
+    font-size: 14px;
+    text-align: center;
+    text-shadow: 1px 1px 3px black;
+}
+
+/* ---------------- LABELS ----------------- */
+label {
+    font-weight: bold;
+    margin-top: 12px;
+    display: block;
+    color: #ffffff;
+    letter-spacing: .3px;
+    text-shadow: 1px 1px 3px black;
+}
+
+/* ---------------- INPUTS ----------------- */
+select {
+    width: 100%;
+    padding: 12px;
+    margin-top: 6px;
+    border-radius: 6px;
+    border: 1px solid #bbb;
+    font-size: 15px;
+    background: rgba(255,255,255,0.85);
+    transition: 0.3s;
+}
+
+select:focus {
+    border-color: #4ca1af;
+    box-shadow: 0 0 8px rgba(76,161,175,0.6);
+    transform: scale(1.03);
+}
+
+/* FILE UPLOAD */
+input[type="file"] {
+    background: rgba(255,255,255,0.9);
+    width: 95%;
+    padding: 7px;
+    border-radius: 6px;
+
+    /* ADDED */
+    cursor: pointer;
+}
+
+/* ---------------- SALARY BOX ----------------- */
+.salary-box {
+    margin-top: 20px;
+    background: rgba(249, 249, 249, 0.571);
+    padding: 14px;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+    transition: .3s;
+}
+
+.salary-box:hover {
+    transform: scale(1.03);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.35);
+}
+
+#salaryDisplay {
+    font-size: 24px;
+    font-weight: bold;
+    color: #1a237e;
+    margin-top: 5px;
+}
+
+/* ---------------- ERROR MESSAGE ----------------- */
+.error {
+    color: #ff5252;
+    font-size: 13px;
+    margin-top: 2px;
+    font-weight: bold;
+}
+
+/* ---------------- BUTTONS ----------------- */
+.apply-btn {
+    width: 100%;
+    padding: 13px;
+    margin-top: 18px;
+    background: linear-gradient(45deg, #1a237e, #3949ab);
+    color: white;
+    border: none;
+    border-radius: 7px;
+    cursor: pointer;
+    font-size: 17px;
+    transition: 0.3s;
+    letter-spacing: .5px;
+}
+
+.apply-btn:hover {
+    background: linear-gradient(45deg, #303f9f, #5c6bc0);
+    transform: scale(1.05);
+}
+
+.back-btn {
+    width: 100%;
+    padding: 13px;
+    margin-top: 12px;
+    background: linear-gradient(45deg, #d32f2f, #f44336);
+    color: white;
+    border: none;
+    border-radius: 7px;
+    cursor: pointer;
+    font-size: 17px;
+    transition: 0.3s;
+}
+
+.back-btn:hover {
+    transform: scale(1.05);
+    background: linear-gradient(45deg, #b71c1c, #e53935);
+}
+
+/* ---------------- FOOTER ----------------- */
+footer {
+    background-color: rgba(26, 35, 126, 0.9);
+    color: white;
+    text-align: center;
+    padding: 10px 0;
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    backdrop-filter: blur(4px);
+    box-shadow: 0 -2px 12px rgba(0,0,0,0.4);
+}

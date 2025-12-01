@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Staff Dashboard - HMS Deluxe</title>
+  <link rel="stylesheet" href="dashboard.css" />
+</head>
+<body>
+
+  <header class="header">
+    <div class="brand">
+      <div class="logo">🧑‍💼</div>
+      <h1>HMS Deluxe — Staff</h1>
+    </div>
+    <div>
+      <button class="btn" onclick="location.href='logindesk.html'">Login Desk</button>
+    </div>
+  </header>
+
+  <div class="page">
+    <aside class="sidebar">
+      <h3>Staff Menu</h3>
+      <div class="menu-section">
+        <button class="menu-btn" onclick="document.getElementById('tasks').scrollIntoView()">📌 Tasks</button>
+        <button class="menu-btn" onclick="document.getElementById('roster').scrollIntoView()">👥 Roster</button>
+        <button class="menu-btn" onclick="document.getElementById('attendance').scrollIntoView()">🕒 Attendance</button>
+      </div>
+    </aside>
+
+    <main class="main">
+      <div class="title-row">
+        <div><h2>📋 Staff Tasks & Assignments</h2><div class="sub">Manage daily assignments and track completion</div></div>
+        <div class="controls">
+          <button class="btn" onclick="completeAll()">Complete Selected</button>
+          <button class="btn ghost" onclick="location.reload()">Refresh</button>
+        </div>
+      </div>
+
+      <div id="tasks" class="card">
+        <h3 style="margin-top:0"> Assigned Tasks
+          <button style="float:right; padding:6px 20px; background:red; color:white; border:none; 
+          border-radius:6px; cursor:pointer;" onclick="clearAllStaffRequests()">Clear All</button>
+        </h3>
+
+        <table class="table">
+          <thead><tr><th>Task</th><th>Assigned To</th><th>Due</th><th>Status</th><th></th></tr></thead>
+          <tbody id="staff-req-body"></tbody>
+        </table>
+      </div>
+
+      <div id="roster" class="card">
+        <h3 style="margin-top:0">Today's Roster</h3>
+        <p>Morning: Ravi, Meena | Evening: Anil, Sunita</p>
+      </div>
+
+      <div id="attendance" class="card">
+        <h3 style="margin-top:0">Attendance Snapshot</h3>
+        <p>Present: 9 | Absent: 1</p>
+      </div>
+    </main>
+  </div>
+<footer>© 2025 HMS Deluxe. All rights reserved.</footer>
+
+<script>
+function toggleDone(btn){
+  const tr = btn.closest('tr');
+  tr.querySelector('td:nth-child(4)').textContent='Done';
+  tr.querySelector('td:nth-child(4)').className='status-done';
+  btn.remove();
+}
+function completeAll(){
+  document.querySelectorAll('#tasks tbody tr').forEach(tr=>{
+    tr.querySelector('td:nth-child(4)').textContent='Done';
+    tr.querySelector('td:nth-child(4)').className='status-done';
+    const b=tr.querySelector('button'); if(b) b.remove();
+  });
+  alert('Selected tasks marked done.');
+}
+</script>
+
+<script>
+function loadStaffRequests() {
+    let data = JSON.parse(localStorage.getItem("staffRequests")) || [];
+    let tbody = document.getElementById("staff-req-body");
+
+    tbody.innerHTML = "";
+
+    data.forEach(req => {
+        tbody.innerHTML += `
+            <tr>
+                <td>${req.work}</td>
+                <td>—</td>
+                <td>${req.time}</td>
+                <td class="${req.status === 'Pending' ? 'status-pending' : 'status-done'}">${req.status}</td>
+                <td>
+                    ${req.status === "Pending" ? 
+                        `<button class="small" onclick="completeStaffReq(this)">Done</button>` 
+                    : ""}
+                </td>
+            </tr>
+        `;
+    });
+}
+
+document.addEventListener("DOMContentLoaded", loadStaffRequests);
+
+
+// Mark single request done
+function completeStaffReq(btn) {
+    const tr = btn.closest("tr");
+    const work = tr.children[0].textContent;
+    const time = tr.children[2].textContent;
+
+    // Update UI
+    tr.children[3].textContent = "Done";
+    tr.children[3].className = "status-done";
+    btn.remove();
+
+    // Update staffRequests
+    let data = JSON.parse(localStorage.getItem("staffRequests")) || [];
+    data = data.map(r => {
+        if (r.work === work && r.time === time) {
+            r.status = "Done";
+        }
+        return r;
+    });
+    localStorage.setItem("staffRequests", JSON.stringify(data));
+
+    // ⭐ ALSO update Frontdesk Service (Room Service)
+    let fd = JSON.parse(localStorage.getItem("frontdeskService")) || [];
+    fd = fd.map(r => {
+        if (r.service === work && r.time === time) {
+            r.status = "Done";
+        }
+        return r;
+    });
+    localStorage.setItem("frontdeskService", JSON.stringify(fd));
+}
+</script>
+<script>
+function clearAllStaffRequests() {
+
+    if (!confirm("Are you sure you want to clear all staff tasks?")) return;
+
+    // Get staff tasks before clearing
+    let staff = JSON.parse(localStorage.getItem("staffRequests")) || [];
+
+    // Clear staffRequests
+    localStorage.removeItem("staffRequests");
+
+    // Also remove same tasks from frontdeskService
+    let fd = JSON.parse(localStorage.getItem("frontdeskService")) || [];
+
+    staff.forEach(s => {
+        fd = fd.filter(r => !(r.service === s.work && r.time === s.time));
+    });
+
+    localStorage.setItem("frontdeskService", JSON.stringify(fd));
+
+    loadStaffRequests(); // refresh
+    alert("All staff tasks cleared!");
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Staff Login - HMS Deluxe</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" href="logindesk.css">
+</head>
+<body>
+
+<header>
+    <div class="logo">🏨 HMS Deluxe</div>
+    <button class="btn-back-home" onclick="location.href='index.html'">Dashboard</button>
+</header>
+
+<div class="container" style="justify-content: center;">
+    <div class="action-hub" style="width: 400px; padding: 40px;">
+        <h3>Staff Login</h3>
+
+        <form id="deskLoginForm">
+
+            <input type="text" id="fullname" placeholder="Full Name" required>
+
+            <div class="password-container">
+              <input type="password" id="login_password" name="password" placeholder="Password" required>
+              <i class="fa-solid fa-eye togglePassword" onclick="toggleLoginPass(this)"></i>
+            </div>
+
+            <!-- ⭐ UPDATED: staff → Staff -->
+            <select id="jobRole" required>
+                <option value="">Select Role</option>
+                <option value="frontdesk">Front Desk Staff</option>
+                <option value="housekeeping">Housekeeping Staff</option>
+                <option value="cook">Cook / Kitchen Staff</option>
+                <option value="service">Service Staff</option>
+            </select>
+
+            <button type="submit" class="btn-user-login">Login</button>
+        </form>
+
+        <p style="margin-top: 15px;">Don’t have an account? <a href="staffRegister.html">Register Here</a></p>
+    </div>
+</div>
+
+<footer>&copy; 2025 HMS Deluxe. All rights reserved.</footer>
+
+<script>
+// ⭐ Staff Login Script With Role Validation
+document.getElementById("deskLoginForm").addEventListener("submit", async function (e) {
+    e.preventDefault();
+
+    const fullname = document.getElementById("fullname").value.trim();
+    const password = document.getElementById("login_password").value.trim();
+    let selectedRole = document.getElementById("jobRole").value;
+
+    try {
+        const response = await fetch("http://localhost:5000/staff-login", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ fullname, password, selectedRole })
+        });
+
+        const result = await response.json();
+
+        if (!result.success) {
+            alert(result.message);
+            return;
+        }
+
+        alert("Login successful!");
+
+        // ⭐ REDIRECT BASED ON JOB ROLE FROM DATABASE
+        if (result.jobRole === "housekeeping") {
+            window.location.href = "housedesk.html";
+
+        } else if (result.jobRole === "frontdesk") {
+            window.location.href = "frontdesk.html";
+
+        } else if (result.jobRole === "cook") {
+            window.location.href = "cookdesk.html";
+
+        } else if (result.jobRole === "service") {
+            window.location.href = "staffdesk.html";
+
+        } else {
+            alert("No valid job role assigned!");
+        }
+
+    } catch (err) {
+        console.error(err);
+        alert("Server error!");
+    }
+});
+</script>
+
+<script>
+    function toggleLoginPass(icon) {
+    const field = document.getElementById("login_password");
+
+    if (field.type === "password") {
+        field.type = "text";
+        icon.classList.remove("fa-eye");
+        icon.classList.add("fa-eye-slash");
+    } else {
+        field.type = "password";
+        icon.classList.remove("fa-eye-slash");
+        icon.classList.add("fa-eye");
+    }
+}
+
+</script>
+</body>
+</html>

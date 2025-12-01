@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Book a Room - HMS Deluxe</title>
+  <link rel="stylesheet" href="booking.css">
+</head>
+<body>
+
+  <header>
+    <div class="logo">🏨 HMS Deluxe</div>
+    <nav>
+      <button class="btn-home" onclick="location.href='userhome.html'">🏠 Dashboard</button>
+    </nav>
+  </header>
+
+  <div class="container">
+    <div class="booking-box">
+      <h2>Room Booking</h2>
+      <p>Choose your preferred room and complete your booking below.</p>
+
+      <form id="bookingForm" onsubmit="return confirmBooking()">
+        <label for="bookingId">Booking ID:</label>
+        <input type="text" id="bookingId" name="bookingId" readonly>
+
+        <label for="checkin">Check-in Date:</label>
+        <input type="date" id="checkin" name="checkin" required>
+
+        <label for="checkout">Check-out Date:</label>
+        <input type="date" id="checkout" name="checkout" required>
+
+        <label for="roomType">Room Type:</label>
+        <select id="roomType" name="roomType" required onchange="showAvailableRooms()">
+          <option value="">-- Select Room Type --</option>
+          <option value="single">Single Bed</option>
+          <option value="double">Double Bed</option>
+          <option value="triple">Triple Bed</option>
+          <option value="deluxe">Deluxe Room</option>
+          <option value="suite">Suite Room</option>
+        </select>
+
+        <div id="acOption" style="display:none;">
+          <label for="acType">AC / Non-AC:</label>
+          <select id="acType" name="acType" onchange="showAvailableRooms()">
+            <option value="">-- Select Type --</option>
+            <option value="ac">AC</option>
+            <option value="non-ac">Non-AC</option>
+          </select>
+        </div>
+
+        <div id="roomList" class="room-list"></div>
+
+        <div class="rate-display">
+          <label>Daily Rate:</label>
+          <p id="rate">--</p>
+        </div>
+
+        <div class="total-display">
+          <label>Total Price:</label>
+          <p id="totalPrice">--</p>
+        </div>
+
+        <button type="submit" class="btn-book">Confirm Booking</button>
+      </form>
+    </div>
+  </div>
+
+  <footer>&copy; 2025 HMS Deluxe. All rights reserved.</footer>
+
+  <script>
+  const roomData = {
+    single: {
+      "ac": { count: 10, rate: 1200, start: 101 },
+      "non-ac": { count: 10, rate: 900, start: 111 }
+    },
+    double: {
+      "ac": { count: 10, rate: 1500, start: 201 },
+      "non-ac": { count: 10, rate: 1100, start: 211 }
+    },
+    triple: {
+      "ac": { count: 10, rate: 1800, start: 301 },
+      "non-ac": { count: 10, rate: 1400, start: 311 }
+    },
+    deluxe: { count: 10, rate: 2300, start: 401 },
+    suite: { count: 5, rate: 3000, start: 501 }
+  };
+
+  let selectedRate = 0;
+
+  function generateBookingId() {
+    const id = "HMS-" + new Date().getFullYear() + "-" + Math.floor(1000 + Math.random() * 9000);
+    document.getElementById("bookingId").value = id;
+  }
+
+  // ✅ Prevent selecting past dates for Check-in and Check-out
+  function setMinDates() {
+    const today = new Date().toISOString().split("T")[0];
+    document.getElementById("checkin").setAttribute("min", today);
+    document.getElementById("checkout").setAttribute("min", today);
+  }
+
+  function showAvailableRooms() {
+    const roomType = document.getElementById("roomType").value;
+    const acOption = document.getElementById("acOption");
+    const acType = document.getElementById("acType").value;
+    const roomList = document.getElementById("roomList");
+    const rateDisplay = document.getElementById("rate");
+
+    roomList.innerHTML = "";
+    rateDisplay.textContent = "--";
+    selectedRate = 0;
+
+    if (!roomType) {
+      acOption.style.display = "none";
+      return;
+    }
+
+    if (roomType === "single" || roomType === "double" || roomType === "triple") {
+      acOption.style.display = "block";
+      if (!acType) return;
+      showRooms(roomType, acType);
+    } else {
+      acOption.style.display = "none";
+      showRooms(roomType, null);
+    }
+  }
+
+  function showRooms(roomType, acType) {
+    const roomList = document.getElementById("roomList");
+    const rateDisplay = document.getElementById("rate");
+    let rooms = [];
+    let rate = 0;
+
+    if (roomType === "deluxe" || roomType === "suite") {
+      const total = roomData[roomType].count;
+      rate = roomData[roomType].rate;
+      const start = roomData[roomType].start;
+      for (let i = 0; i < total; i++) {
+        rooms.push(`${roomType.toUpperCase()}-${start + i}`);
+      }
+    } else {
+      const total = roomData[roomType][acType].count;
+      rate = roomData[roomType][acType].rate;
+      const start = roomData[roomType][acType].start;
+      for (let i = 0; i < total; i++) {
+        rooms.push(`${roomType.toUpperCase()}-${start + i}`);
+      }
+    }
+
+    selectedRate = rate;
+    const nights = calculateNights();
+    rateDisplay.textContent = `₹${rate.toLocaleString()} / night`;
+    
+    document.getElementById("totalPrice").textContent = nights > 0
+      ? `₹${(rate * nights).toLocaleString()}`
+      : `--`;
+
+    rooms.forEach((room) => {
+      const div = document.createElement("div");
+      div.className = "room-card";
+      div.textContent = room;
+      div.onclick = () => selectRoom(div, room);
+      roomList.appendChild(div);
+    });
+  }
+
+  function selectRoom(element, roomName) {
+    document.querySelectorAll(".room-card").forEach(el => el.classList.remove("selected"));
+    element.classList.add("selected");
+    element.setAttribute("data-selected", roomName);
+  }
+
+  function calculateNights() {
+    const checkIn = new Date(document.getElementById("checkin").value);
+    const checkOut = new Date(document.getElementById("checkout").value);
+    if (!checkIn || !checkOut || checkOut <= checkIn) return 0;
+    const diffTime = checkOut - checkIn;
+    return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  }
+
+  document.getElementById("checkin").addEventListener("change", updateTotalPrice);
+  document.getElementById("checkout").addEventListener("change", updateTotalPrice);
+
+  function updateTotalPrice() {
+    const nights = calculateNights();
+    const rateDisplay = document.getElementById("rate");
+    const totalPriceDisplay = document.getElementById("totalPrice");
+    if (selectedRate > 0) {
+      const total = selectedRate * nights;
+      rateDisplay.textContent = `₹${selectedRate.toLocaleString()} / night`;
+      totalPriceDisplay.textContent = nights > 0
+        ? `₹${total.toLocaleString()}`
+        : `--`;
+    } else {
+      totalPriceDisplay.textContent = "--";
+    }
+  }
+
+  function confirmBooking() {
+    const selected = document.querySelector(".room-card.selected");
+    const nights = calculateNights();
+    if (!selected) {
+      alert("Please select a room before confirming your booking.");
+      return false;
+    }
+    if (nights <= 0) {
+      alert("Please select valid check-in and check-out dates.");
+      return false;
+    }
+
+    const total = selectedRate * nights;
+    alert(
+      `✅ Booking Confirmed!\nRoom: ${selected.textContent}\nTotal Nights: ${nights}\nTotal Price: ₹${total.toLocaleString()}\nEnjoy your stay at HMS Deluxe!`
+    );
+    return false;
+  }
+
+  window.onload = () => {
+    generateBookingId();
+    setMinDates(); // ✅ Restrict old dates
+  };
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,267 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Poppins", sans-serif;
+}
+
+body {
+  background: linear-gradient(to bottom right, #f8fbff, #e3efff);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  color: #333;
+  margin: 0;
+  padding: 0;
+  padding-top: 65px;        /* reserve space for fixed header */
+  padding-bottom: 0;        /* footer will be at end of content, not fixed */
+  animation: fadeBody 0.7s ease-in-out;
+}
+
+@keyframes fadeBody {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* ----------------------------------------------------
+   HEADER (Perfectly aligned)
+---------------------------------------------------- */
+header {
+  width: 100%;
+  height: 65px;
+  background: linear-gradient(90deg,#1a237e,#3949ab);
+  color: white;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 24px;          /* reduced padding to fit button */
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;                 /* ensures full width */
+  z-index: 999;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+  backdrop-filter: blur(4px);
+  box-sizing: border-box;   /* include padding in width */
+}
+
+@keyframes slideDown {
+  from { transform: translateY(-40px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.logo {
+  font-size: 1.8em;
+  font-weight: bold;
+  letter-spacing: 1px;
+  text-shadow: 1px 1px 2px black;
+  white-space: nowrap;      /* prevent logo wrapping */
+  margin: 0;  /* ✅ ensure no margin pushing it */
+}
+
+header nav {
+  margin-left: auto;  /* ✅ push nav to the right */
+}
+
+header nav button {
+  background: #ffffff5c;
+  color: white;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: 0.3s ease;
+  font-size: 13px;
+  font-weight: bold;
+  transition: 0.3s;
+  backdrop-filter: blur(4px);
+  box-shadow: 0 0 8px rgba(255,255,255,0.3);
+  white-space: nowrap;      /* keep text on one line */
+  flex-shrink: 0;           /* prevent compression */
+  margin-left: 10px;        /* gap from logo */
+  position: static !important; /* FIX: removed absolute */
+}
+
+header nav button:hover {
+  background: white;
+  color: #1a237e;
+  transform: scale(1.05);
+}
+
+.container {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start; /* FIX: removes extra vertical space */
+  padding: 40px 20px;
+}
+
+.booking-box {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(10px);
+  border-radius: 18px;
+  padding: 35px;
+  width: 450px;
+  box-shadow: 0 12px 35px rgba(0,0,0,0.15);
+  animation: fadeIn 0.7s ease-in-out;
+  border-top: 3px solid #64b5f6;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.booking-box h2 {
+  text-align: center;
+  color: #0d47a1;
+  font-size: 1.9em;
+  margin-bottom: 10px;
+  text-shadow: 1px 1px 5px rgba(0,0,0,0.2);
+}
+
+.booking-box p {
+  text-align: center;
+  color: #555;
+  margin-bottom: 25px;
+  font-size: 0.95em;
+}
+
+form label {
+  display: block;
+  margin-top: 15px;
+  font-weight: 600;
+  color: #1e3c72;
+  transition: 0.3s;
+}
+
+form input,
+form select {
+  width: 100%;
+  padding: 12px;
+  margin-top: 6px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  font-size: 0.95em;
+  background: #f8fafc;
+  transition: 0.3s;
+}
+
+form input:focus,
+form select:focus {
+  border-color: #1e88e5;
+  box-shadow: 0 0 10px rgba(30,136,229,0.35);
+  background: white;
+  transform: scale(1.02);
+}
+
+.room-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 12px;
+  margin-top: 15px;
+}
+
+.room-card {
+  background: #e3f2fd;
+  padding: 14px;
+  border-radius: 12px;
+  text-align: center;
+  font-weight: 600;
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: 0.25s ease;
+  box-shadow: 0 5px 12px rgba(0,0,0,0.1);
+}
+
+.room-card:hover {
+  background: #cce6ff;
+  transform: translateY(-5px);
+  box-shadow: 0 10px 18px rgba(0,0,0,0.18);
+}
+
+.room-card.selected {
+  border-color: #1e88e5;
+  background: #bbdefb;
+  box-shadow: 0 8px 20px rgba(30,136,229,0.4);
+  transform: translateY(-6px);
+}
+
+/* ----------------------------------------------------
+   RATES & TOTAL
+---------------------------------------------------- */
+.rate-display,
+.total-display {
+  background-color: #e3f2fd;
+  padding: 12px;
+  border-radius: 10px;
+  margin-top: 15px;
+  box-shadow: inset 0 0 10px rgba(0,0,0,0.05);
+  border-left: 4px solid #1e88e5;
+}
+
+.rate-display p,
+.total-display p {
+  font-weight: bold;
+  color: #0d47a1;
+  font-size: 1.08em;
+}
+
+.btn-book {
+  background: linear-gradient(90deg, #4caf50, #2e7d32);
+  color: white;
+  width: 100%;
+  padding: 14px;
+  border: none;
+  border-radius: 10px;
+  font-size: 1.1em;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 25px;
+  box-shadow: 0 6px 20px rgba(76,175,80,0.35);
+  transition: 0.3s;
+}
+
+.btn-book:hover {
+  background: linear-gradient(90deg, #43a047, #1b5e20);
+  transform: translateY(-4px);
+  box-shadow: 0 10px 26px rgba(76,175,80,0.45);
+}
+
+/* ----------------------------------------------------
+   FOOTER
+---------------------------------------------------- */
+footer {
+  text-align: center;
+  background-color: #1a237e;
+  color: white;
+  padding: 12px 0;
+  font-size: 0.95em;
+  letter-spacing: 0.4px;
+  box-shadow: 0 -4px 14px rgba(0,0,0,0.25);
+  margin-top: 0 !important;
+  width: 100%;                    /* ✅ ensure full width */
+  box-sizing: border-box;
+}
+
+html {
+  margin: 0;
+  padding: 0;
+}/* ...existing code... */
+
+/* FOOTER */
+footer {
+  text-align: center;
+  background-color: #1a237e;
+  color: white;
+  padding: 12px 0;
+  font-size: 0.95em;
+  letter-spacing: 0.4px;
+  box-shadow: 0 -4px 14px rgba(0,0,0,0.25);
+  margin: 0;                      /* ✅ changed from margin-top */
+  width: 100%;
+  position: fixed;            /* ✅ make footer fixed */
+  bottom: 0;                  /* ✅ stick to bottom */
+  box-sizing: border-box;
+  flex-shrink: 0;                 /* prevent footer from shrinking */
+}

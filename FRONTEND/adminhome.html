@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - HMS Deluxe</title>
+    <link rel="stylesheet" href="adminhome.css">
+
+    <!-- ICONS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+
+<body>
+
+    <!-- HEADER -->
+    <header class="header">
+        <div class="logo">🏨 HMS Deluxe</div>
+        <button class="logout-btn" onclick="location.href='index.html'">Dashboard</button>
+    </header>
+
+    <!-- MAIN LAYOUT -->
+    <div class="layout">
+
+        <!-- SIDEBAR -->
+        <aside class="sidebar">
+            <h3>Navigation</h3>
+
+            <button onclick="showSection('guests')">
+                <i class="fa-solid fa-user"></i> Guests
+            </button>
+
+            <button onclick="showSection('rooms')">
+                <i class="fa-solid fa-bed"></i> Rooms
+            </button>
+
+            <button onclick="showSection('staff')">
+                <i class="fa-solid fa-users"></i> Staff
+            </button>
+
+            <button onclick="showSection('payments')">
+                <i class="fa-solid fa-money-bill"></i> Payments
+            </button>
+
+            <button onclick="showSection('visitors')">
+                <i class="fa-solid fa-id-card"></i> Visitors History
+            </button>
+
+            <button onclick="showSection('reviews')">
+                <i class="fa-solid fa-star"></i> Reviews
+            </button>
+        </aside>
+
+        <!-- MAIN CONTENT -->
+        <main class="content">
+
+            <!-- Guests -->
+            <section id="guests" class="section active">
+                <h2>Guests</h2>
+                <p>Manage registered guests, their bookings, and personal details.</p>
+
+                <div class="cards">
+                    <div class="card"><i class="fa-solid fa-users"></i>
+                        <h3>Total Guests</h3>
+                        <p id="totalGuests">0</p>
+                    </div>
+                    <div class="card"><i class="fa-solid fa-user-plus"></i>
+                        <h3>New Today</h3>
+                        <p id="newTodayGuests">0</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Rooms -->
+            <section id="rooms" class="section">
+                <h2>Rooms</h2>
+                <p>Monitor available, occupied, and maintenance rooms.</p>
+
+                <div class="cards">
+
+                <!-- Total Summary -->
+                <div class="card">
+                  <i class="fa-solid fa-bed"></i>
+                  <h3>Available Rooms</h3>
+                  <p id="availableTotal">0</p>
+                </div>
+
+                <div class="card">
+                  <i class="fa-solid fa-door-open"></i>
+                  <h3>Occupied Rooms</h3>
+                  <p id="occupiedTotal">0</p>
+                </div>
+
+                <!-- Detailed Room Categories -->
+                <div class="card">
+                  <i class="fa-solid fa-bed"></i>
+                  <h3>Single Bedroom AC</h3>
+                  <p id="singleAC">0</p>
+                </div>
+
+                <div class="card">
+                  <i class="fa-solid fa-bed"></i>
+                  <h3>Single Bedroom NON-AC</h3>
+                  <p id="singleNonAC">0</p>
+                </div>
+
+                <div class="card">
+                  <i class="fa-solid fa-bed"></i>
+                  <h3>Double Bedroom AC</h3>
+                  <p id="doubleAC">0</p>
+                </div>
+
+                <div class="card">
+                  <i class="fa-solid fa-bed"></i>
+                  <h3>Double Bedroom NON-AC</h3>
+                  <p id="doubleNonAC">0</p>
+                </div>
+
+                <div class="card">
+                  <i class="fa-solid fa-bed"></i>
+                  <h3>Triple Bedroom AC</h3>
+                  <p id="tripleAC">0</p>
+                </div>
+
+                <div class="card">
+                  <i class="fa-solid fa-bed"></i>
+                  <h3>Triple Bedroom NON-AC</h3>
+                  <p id="tripleNonAC">0</p>
+                </div>
+
+                <div class="card">
+                  <i class="fa-solid fa-bed"></i>
+                  <h3>Deluxe Rooms</h3>
+                  <p id="deluxe">0</p>
+                </div>
+
+                <div class="card">
+                  <i class="fa-solid fa-bed"></i>
+                  <h3>Suite Rooms</h3>
+                  <p id="suite">0</p>
+                </div>
+                </div>
+
+            </section>
+
+            <!-- Staff -->
+            <section id="staff" class="section">
+                <h2>Staff</h2>
+                <p>View staff status, roles, and work schedules.</p>
+
+                <div class="cards">
+                    <div class="card"><i class="fa-solid fa-user-tie"></i>
+                        <h3>Total Staff</h3>
+                        <p id="totalStaff">0</p>
+                    </div>
+                    <div class="card"><i class="fa-solid fa-clipboard-user"></i>
+                        <h3>Active Shifts</h3>
+                        <p id="activeShift">0</p>
+                    </div>
+                </div>
+
+                <!-- Staff Applications Table -->
+                <h3 style="margin-top: 20px;">Staff Applications</h3>
+
+                <table border="1" cellpadding="10" cellspacing="0" style="width:100%; background:white;">
+                    <thead>
+                        <tr>
+                            <th>Full Name</th>
+                            <th>Email</th>
+                            <th>Contact</th>
+                            <th>Job Role</th>
+                            <th>Shift</th>
+                            <th>Resume</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="staffTable"></tbody>
+                </table>
+            </section>
+
+            <!-- Payments -->
+            <section id="payments" class="section">
+                <h2>Payments</h2>
+                <p>View Revenue, Daily Revenue, Completed Payments.</p>
+
+                <div class="cards">
+                    <div class="card"><i class="fa-solid fa-wallet"></i>
+                        <h3>Total Revenue</h3>
+                        <p id="totalRevenue">₹0</p>
+                    </div>
+                    <div class="card"><i class="fa-solid fa-money-check-dollar"></i>
+                        <h3>Daily Revenue</h3>
+                        <p id="dailyRevenue">₹0</p>
+                    </div>
+                </div>
+                <h3 style="margin-top: 20px;">All Payment Records</h3>
+
+                <table border="1" cellpadding="10" cellspacing="0" style="width:100%; background:white;">
+                <thead>
+                <tr>
+                  <th>Username</th>
+                  <th>Booking ID</th>
+                  <th>Amount Paid</th>
+                  <th>Date</th>
+                </tr>
+                </thead>
+                <tbody id="paymentTable"></tbody>
+                </table>
+
+            </section>
+
+            <!-- Visitors -->
+            <section id="visitors" class="section">
+                <h2>Visitors History</h2>
+                <p>Track all registered guests & staff login/register activity.</p>
+                <div style="width: 100%; display: flex; justify-content: flex-end; margin-top: -40px; padding-right: 10px;">
+                  <button onclick="deleteAllVisitors()" style="background: #ff3b3b; color: white; padding: 10px 22px; border: none; 
+                  cursor: pointer; border-radius: 30px; font-weight: 600; box-shadow: 0 2px 8px rgba(255, 0, 0, 0.4); transition: 0.25s ease;"
+                  onmouseover="this.style.boxShadow='0 4px 12px rgba(255,0,0,0.6)'; this.style.transform='scale(1.05)'" 
+                  onmouseout="this.style.boxShadow='0 2px 8px rgba(255,0,0,0.4)'; this.style.transform='scale(1)'">
+                  🗑️ Delete All Visitor History </button>
+                </div>
+
+                <div class="cards">
+                    <div class="card"><i class="fa-solid fa-id-badge"></i>
+                        <h3>Total Visitors</h3>
+                        <p id="totalVisitors">0</p>
+                    </div>
+                    <div class="card"><i class="fa-solid fa-clock"></i>
+                        <h3>Today</h3>
+                        <p id="todayVisitors">0</p>
+                    </div>
+                </div>
+
+                <table border="1" cellpadding="10" cellspacing="0" style="width:100%; background:white;">
+                    <thead>
+                        <tr>
+                            <th>Username</th>
+                            <th>Date & Time</th>
+                            <th>Status</th>
+                            <th>User Type</th>
+                        </tr>
+                    </thead>
+                    <tbody id="visitorTable"></tbody>
+                </table>
+            </section>
+
+            <section id="reviews" class="section">
+              <h2>User Reviews</h2>
+              <p>All reviews submitted by users.</p>
+              <div style="width: 100%; display: flex; justify-content: flex-end; margin-top: -10px; padding-right: 10px; margin-bottom: 10px;">
+                <button onclick="deleteAllReviews()" style="background: #ff3b3b; color: white; padding: 10px 22px; border: none; cursor: pointer; 
+                border-radius: 30px; font-weight: 600; box-shadow: 0 2px 8px rgba(255, 0, 0, 0.4); transition: 0.25s ease;"
+                onmouseover="this.style.boxShadow='0 4px 12px rgba(255,0,0,0.6)'; this.style.transform='scale(1.05)'"
+                onmouseout="this.style.boxShadow='0 2px 8px rgba(255,0,0,0.4)'; this.style.transform='scale(1)'">
+                🗑️ Delete All Reviews </button>
+              </div>
+
+              <table border="1" cellpadding="10" cellspacing="0" style="width:100%; background:white;">
+              <thead>
+              <tr>
+                <th>Name</th>
+                <th>Rating</th>
+                <th>Review</th>
+                <th>Date</th>
+                <th>Action</th> <!-- NEW -->
+              </tr>
+              </thead>
+              <tbody id="reviewsTable"></tbody>
+              </table>
+            </section>
+        </main>
+    </div>
+
+    <!-- FOOTER -->
+    <footer>
+        © 2025 HMS Deluxe Admin — All Rights Reserved
+    </footer>
+
+    <script>
+        function showSection(id) {
+            document.querySelectorAll(".section").forEach(sec => sec.classList.remove("active"));
+            document.getElementById(id).classList.add("active");
+        }
+    </script>
+
+    <!-- Load Guest Stats -->
+    <script>
+        async function loadGuestStats() {
+            try {
+                const response = await fetch("http://localhost:5000/guest-stats");
+                const data = await response.json();
+
+                if (data.success) {
+                    document.getElementById("totalGuests").innerText = data.totalGuests;
+                    document.getElementById("newTodayGuests").innerText = data.newToday;
+                }
+            } catch (err) {
+                console.error("Error loading guest stats:", err);
+            }
+        }
+    </script>
+
+    <!-- Load Staff Stats -->
+    <script>
+        async function loadStaffStats() {
+            try {
+                const response = await fetch("http://localhost:5000/staff-stats");
+                const data = await response.json();
+
+                if (data.success) {
+                    document.getElementById("totalStaff").innerText = data.totalStaff;
+                    document.getElementById("activeShift").innerText = data.activeStaff;
+                }
+            } catch (err) {
+                console.error("Error loading staff stats:", err);
+            }
+        }
+    </script>
+
+    <!-- Load Staff Table -->
+    <script>
+        async function loadStaffTable() {
+            try {
+                const res = await fetch("http://localhost:5000/all-jobdetails");
+                const data = await res.json();
+
+                if (!data.success) return;
+
+                let rows = "";
+                data.jobs.forEach(job => {
+                    rows += `
+                        <tr>
+                            <td>${job.fullname}</td>
+                            <td>${job.email}</td>
+                            <td>${job.contact}</td>
+                            <td>${job.jobRole}</td>
+                            <td>${job.shift}</td>
+                            <td><a href="${job.resume}" target="_blank">View</a></td>
+                            <td>${job.status}</td>
+                            <td>
+                              ${
+                                  job.status === "Approved"
+                                  ? `
+                                  <span style='color: green; font-weight: bold;'>Approved</span>
+                                  <button onclick="deleteStaff('${job._id}')" 
+                                  style="color:white; background:red; border:none; padding:5px 10px; cursor:pointer; margin-left:10px;">
+                                  Delete
+                                  </button>
+                           `
+                                  : job.status === "Rejected"
+                                  ? `<span style='color: red; font-weight: bold;'>Rejected</span>`
+                                  : `
+                                  <button onclick="updateStatus('${job._id}', 'Approved')" style="color:green;">Approve</button>
+                                  <button onclick="updateStatus('${job._id}', 'Rejected')" style="color:red;">Reject</button>
+                                  `
+                                }
+                            </td>
+
+                        </tr>
+                    `;
+                });
+
+                document.getElementById("staffTable").innerHTML = rows;
+
+            } catch (err) {
+                console.error("Error loading job table:", err);
+            }
+        }
+
+        async function updateStatus(id, status) {
+            const res = await fetch("http://localhost:5000/update-status", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ id, status })
+            });
+
+            const data = await res.json();
+            if (data.success) {
+                alert("Status updated!");
+                loadStaffTable();
+            }
+        }
+    </script>
+
+    <script>
+      async function deleteStaff(id) {
+        if (!confirm("Are you sure you want to delete this staff permanently?")) return;
+
+        const res = await fetch("http://localhost:5000/delete-staff", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ id })
+       });
+
+        const data = await res.json();
+          if (data.success) {
+          alert("Staff deleted successfully!");
+          loadStaffTable(); // refresh table
+        } else {
+          alert("Error: " + data.message);
+        }
+    }
+    </script>
+
+    <!-- Load Visitors -->
+    <script>
+        async function loadVisitors() {
+            try {
+                const res = await fetch("http://localhost:5000/visitor-stats");
+                const data = await res.json();
+
+                if (!data.success) return;
+
+                document.getElementById("totalVisitors").innerText = data.total;
+                document.getElementById("todayVisitors").innerText = data.today;
+
+                let rows = "";
+                data.logs.forEach(v => {
+                    rows += `
+                        <tr>
+                            <td>${v.username}</td>
+                            <td>${new Date(v.date).toLocaleString()}</td>
+                            <td class="status-${v.status.toLowerCase()}">${v.status}</td>
+                            <td style="text-transform:capitalize;">${v.type}</td>
+                        </tr>
+                    `;
+                });
+
+                document.getElementById("visitorTable").innerHTML = rows;
+
+            } catch (err) {
+                console.error("Error loading visitors:", err);
+            }
+        }
+    </script>
+
+    <!-- INITIAL LOAD -->
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            loadGuestStats();
+            loadStaffStats();
+            loadStaffTable();
+            loadVisitors();    // ⭐ NEW
+        });
+    </script>
+    <script>
+      async function deleteAllVisitors() {
+        if (!confirm("Are you sure you want to delete ALL visitor history?")) return;
+
+        const res = await fetch("http://localhost:5000/delete-all-visitors", {
+          method: "POST"
+        });
+
+        const data = await res.json();
+
+        if (data.success) {
+          alert("All visitor history deleted!");
+          loadVisitors();  // refresh table
+        } else {
+          alert("Error: " + data.message);
+        }
+    }
+    </script>
+
+   <!-- paste the updated loadRoomStats() function here -->
+
+<script>
+async function loadRoomStats() {
+  const res = await fetch("http://localhost:5000/all-rooms");
+  const data = await res.json();
+
+  if (!data.success) return;
+
+  const rooms = data.rooms;
+
+  let counts = {
+    available: 0,
+    occupied: 0,
+    singleAC: 0,
+    singleNonAC: 0,
+    doubleAC: 0,
+    doubleNonAC: 0,
+    tripleAC: 0,
+    tripleNonAC: 0,
+    deluxe: 0,
+    suite: 0
+  };
+
+  rooms.forEach(room => {
+
+    // Count totals
+    if (room.status === "Available") counts.available++;
+    else counts.occupied++;
+
+    // Count only AVAILABLE room categories
+    if (room.status === "Available") {
+
+        if (room.type === "Single Bedroom" && room.acType === "AC")
+            counts.singleAC++;
+
+        if (room.type === "Single Bedroom" && room.acType === "NON-AC")
+            counts.singleNonAC++;
+
+        if (room.type === "Double Bedroom" && room.acType === "AC")
+            counts.doubleAC++;
+
+        if (room.type === "Double Bedroom" && room.acType === "NON-AC")
+            counts.doubleNonAC++;
+
+        if (room.type === "Triple Bedroom" && room.acType === "AC")
+            counts.tripleAC++;
+
+        if (room.type === "Triple Bedroom" && room.acType === "NON-AC")
+            counts.tripleNonAC++;
+
+        if (room.type === "Deluxe Room")
+            counts.deluxe++;
+
+        if (room.type === "Suite Room")
+            counts.suite++;
+
+    }
+
+});
+
+  document.getElementById("availableTotal").innerText = counts.available;
+  document.getElementById("occupiedTotal").innerText = counts.occupied;
+
+  document.getElementById("singleAC").innerText = counts.singleAC;
+  document.getElementById("singleNonAC").innerText = counts.singleNonAC;
+
+  document.getElementById("doubleAC").innerText = counts.doubleAC;
+  document.getElementById("doubleNonAC").innerText = counts.doubleNonAC;
+
+  document.getElementById("tripleAC").innerText = counts.tripleAC;
+  document.getElementById("tripleNonAC").innerText = counts.tripleNonAC;
+
+  document.getElementById("deluxe").innerText = counts.deluxe;
+  document.getElementById("suite").innerText = counts.suite;
+}
+</script>
+
+<script>
+document.addEventListener("DOMContentLoaded", loadRoomStats);
+</script>
+
+<script>
+function loadReviews() {
+    const reviews = JSON.parse(localStorage.getItem("userReviews")) || [];
+    const table = document.getElementById("reviewsTable");
+
+    let rows = "";
+
+    reviews.slice().reverse().forEach((r, index) => {
+        rows += `
+            <tr>
+                <td>${r.name}</td>
+                <td>${"⭐".repeat(r.rating)}</td>
+                <td>${r.message}</td>
+                <td>${r.date}</td>
+                <td>
+                    <button 
+                        style="background:red; color:white; border:none; padding:6px 12px; border-radius:5px; cursor:pointer;"
+                        onclick="deleteReview(${reviews.length - 1 - index})">
+                        Delete
+                    </button>
+                </td>
+            </tr>
+        `;
+    });
+
+    table.innerHTML = rows;
+}
+</script>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    loadReviews();
+});
+</script>
+
+<script>
+function deleteReview(index) {
+    if (!confirm("Are you sure you want to delete this review?")) return;
+
+    let reviews = JSON.parse(localStorage.getItem("userReviews")) || [];
+
+    reviews.splice(index, 1); // Remove item from array
+
+    localStorage.setItem("userReviews", JSON.stringify(reviews)); // Save updated data
+
+    loadReviews(); // Refresh review list immediately
+}
+</script>
+
+<script>
+function deleteAllReviews() {
+    if (!confirm("Are you sure you want to delete ALL reviews?")) return;
+
+    localStorage.removeItem("userReviews");
+
+    loadReviews(); // refresh table instantly
+}
+</script>
+
+<script>
+let allPayments = [];
+
+async function loadPayments() {
+    const res = await fetch("http://localhost:5000/all-payments");
+    const data = await res.json();
+
+    if (!data.success) return;
+
+    // store & sort latest-first
+    allPayments = data.payments.sort((a,b)=> new Date(b.paidAt) - new Date(a.paidAt));
+
+    renderPayments(allPayments);
+}
+
+// RENDER TABLE + CALCULATE REVENUE
+function renderPayments(list){
+    let rows = "";
+    list.forEach(p => {
+        const date = new Date(p.paidAt).toLocaleString();
+        rows += `
+            <tr>
+                <td>${p.username}</td>
+                <td>${p.bookingId}</td>
+                <td>₹${p.totalAmount}</td>
+                <td>${date}</td>
+            </tr>
+        `;
+    });
+
+    document.getElementById("paymentTable").innerHTML = rows;
+
+    calculateRevenue(list);
+}
+
+// TOTAL + DAILY REVENUE
+function calculateRevenue(payments){
+    let total = 0;
+    let daily = 0;
+
+    const today = new Date().toDateString();
+
+    payments.forEach(p => {
+        const amount = Number(p.totalAmount);
+        const payDate = new Date(p.paidAt).toDateString();
+
+        total += amount;
+
+        if (payDate === today) {
+            daily += amount;
+        }
+    });
+
+    document.getElementById("totalRevenue").innerText = "₹" + total.toLocaleString('en-IN');
+    document.getElementById("dailyRevenue").innerText = "₹" + daily.toLocaleString('en-IN');
+}
+</script>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    loadPayments();  // ⭐ Load payments on page load
+});
+</script>
+
+</body>
+</html>

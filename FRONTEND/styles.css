@@ -1,0 +1,240 @@
+/* --- 1. GENERAL & BASE STYLING --- */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    padding: 0;
+    background: linear-gradient(to bottom, #f4f4f4, #e9ebff); /* Softer professional gradient */
+    color: #333;
+    line-height: 1.6;
+    animation: fadeInBody 0.8s ease-in-out;
+}
+
+@keyframes fadeInBody {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+a {
+    text-decoration: none;
+    color: #2196f3;
+    transition: 0.2s;
+}
+
+a:hover {
+    text-decoration: underline;
+    color: #0d47a1;
+}
+
+ul {
+    list-style: none;
+    padding-left: 0;
+}
+
+ul li {
+    margin-bottom: 10px;
+    padding-left: 20px;
+    position: relative;
+}
+
+ul li::before {
+    content: "•";
+    color: #4caf50;
+    font-weight: bold;
+    display: inline-block;
+    width: 1em;
+    margin-left: -1em;
+}
+
+/* --- 2. HEADER & NAVIGATION --- */
+header {
+    background-color: #1a237e;
+    color: white;
+    padding: 15px 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 3px 15px rgba(0, 0, 0, 0.3);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    animation: slideDown 0.6s ease-out;
+}
+
+@keyframes slideDown {
+    from { transform: translateY(-100px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+.logo {
+    font-size: 1.9em;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    letter-spacing: 1px;
+}
+
+/* Small logo hover animation */
+.logo:hover {
+    transform: scale(1.05);
+    transition: 0.25s;
+}
+
+nav {
+    display: flex;
+    align-items: center;
+}
+
+
+/* --- 3. ACTION HUB (HEADER BUTTONS) --- */
+.action-hub {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.action-hub hr {
+    border: none;
+    border-left: 1px solid rgba(255, 255, 255, 0.5);
+    height: 30px;
+    margin: 0 5px;
+}
+
+/* Base Button Styling */
+.action-hub button {
+    padding: 8px 15px;
+    border: none;
+    border-radius: 50px;
+    font-size: 0.9em;
+    font-weight: 600;
+    cursor: pointer;
+    color: white;
+    transition: 0.3s;
+}
+
+.action-hub button:hover {
+    transform: translateY(-3px);
+    box-shadow: 0px 6px 12px rgba(0,0,0,0.25);
+}
+
+/* Button Themes */
+.btn-user-login { background-color: #4caf50; }
+.btn-user-login:hover { background-color: #3d8b3f; }
+
+.btn-user-register { background-color: #2196f3; }
+.btn-user-register:hover { background-color: #0b7dda; }
+
+.btn-job-apply { background-color: #ff9800; }
+.btn-job-apply:hover { background-color: #fb8c00; }
+
+.btn-admin-login { background-color: #f44336; }
+.btn-admin-login:hover { background-color: #d32f2f; }
+
+
+/* --- 4. MAIN LAYOUT --- */
+.container {
+    width: 85%;
+    max-width: 1200px;
+    margin: 40px auto;
+    animation: fadeUp 0.9s ease-out;
+}
+
+@keyframes fadeUp {
+    from { opacity: 0; transform: translateY(25px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+
+/* --- 5. CONTENT SECTIONS --- */
+.section {
+    background-color: white;
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: 0 4px 25px rgba(0, 0, 0, 0.12);
+    margin-bottom: 30px;
+    transition: 0.3s;
+}
+
+/* Smooth hover lift effect */
+.section:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.22);
+}
+
+.section h2 {
+    color: #1a237e;
+    border-bottom: 3px solid #e0e0e0;
+    padding-bottom: 10px;
+    margin-top: 0;
+    font-size: 2em;
+}
+
+/* subtle underline animation */
+.section h2 {
+    position: relative;
+}
+
+.section h2::after {
+    content: "";
+    width: 0;
+    height: 3px;
+    background: #3949ab;
+    position: absolute;
+    bottom: -3px;
+    left: 0;
+    transition: 0.4s;
+}
+
+.section:hover h2::after {
+    width: 100%;
+}
+
+
+/* --- 6. REVIEW CARDS --- */
+.rating {
+    display: block;
+    font-size: 1.5em;
+    color: #ff9800;
+    margin-bottom: 20px;
+    font-weight: 600;
+}
+
+.review-card {
+    background-color: #fafafa;
+    border-left: 5px solid #2196f3;
+    padding: 15px;
+    border-radius: 10px;
+    margin-bottom: 15px;
+    transition: 0.3s;
+}
+
+/* Lift on hover */
+.review-card:hover {
+    transform: translateX(5px);
+    box-shadow: 0px 5px 20px rgba(0,0,0,0.15);
+}
+
+.review-card p {
+    font-style: italic;
+    margin: 0 0 5px;
+}
+
+.review-card small {
+    display: block;
+    text-align: right;
+    color: #666;
+    font-weight: bold;
+}
+
+
+/* --- 7. FOOTER --- */
+footer {
+    background-color: #1a237e;
+    color: white;
+    text-align: center;
+    padding: 12px;
+    margin-top: 40px;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+    box-shadow: 0 -3px 10px rgba(0,0,0,0.2);
+}

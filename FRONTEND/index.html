@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hotel Management System - Home</title>
+    <link rel="stylesheet" href="styles.css"> 
+</head>
+<body>
+
+    <header>
+        <div class="logo">🏨 HMS Deluxe</div>
+        <nav>
+            <div class="action-hub">
+              <button class="btn-user-login" onclick="location.href='login.html'">User Login</button>
+              <button class="btn-user-register" onclick="location.href='register.html'">User Register</button>
+              <hr>
+              <button class="btn-job-apply" onclick="location.href='staffRegister.html'">Apply for Job</button>
+              <button class="btn-job-apply" onclick="location.href='logindesk.html'">Login Desk</button>
+              <hr>
+              <button class="btn-admin-login" onclick="location.href='adminlogin.html'">Admin Login</button>
+             </div>
+        </nav>
+    </header>
+
+    <div class="container">
+        
+        <div class="main-content">
+            <!-- ABOUT SECTION -->
+            <div class="section">
+                <h2>About Our Hotel Management System</h2>
+                <p>Our HMS is built on a robust, cloud-based platform to empower hotel staff, reduce manual errors, and provide a world-class experience for your guests. We offer:</p>
+                <ul>
+                    <li>📅 <b>Centralized Reservations:</b> Manage all bookings from one dashboard.</li>
+                    <li>🔑 <b>Quick Check-in/Check-out:</b> Streamline the guest journey.</li>
+                    <li>📊 <b>Insightful Reporting:</b> Track revenue, occupancy, and staff performance.</li>
+                </ul>
+            </div>
+
+            <!-- GUEST REVIEWS SECTION -->
+            <div class="section">
+                <h2>What Our Guests Say</h2>
+                <span id="averageRating" class="rating"></span>
+                <div id="userReviews"></div>
+            </div>
+
+            <!-- CLIENT REVIEWS -->
+            <div class="section">
+                <h2>What Our Clients Say</h2>
+                <span class="rating">⭐⭐⭐⭐⭐ 4.8/5</span>
+                
+                <div class="review-card">
+                    <p>"A game-changer for our mid-sized hotel. The admin dashboard is intuitive and powerful."</p>
+                    <small>— Jane D., General Manager</small>
+                </div>
+                
+                <div class="review-card">
+                    <p>"Guest registration is lightning fast now. Highly recommended!"</p>
+                    <small>— Robert S., Front Desk Staff</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        © 2025 HMS Deluxe. All rights reserved.
+    </footer>
+
+    <!-- ⭐ DYNAMIC STAR GENERATOR -->
+    <script>
+    function getStars(rating) {
+        rating = Number(rating);
+        let full = "⭐".repeat(rating);
+        let empty = "☆".repeat(5 - rating);
+        return full + empty;
+    }
+    </script>
+
+    <!-- ⭐ LOAD TOP REVIEWS (ONLY 4★ & 5★) -->
+    <script>
+    function loadUserReviews() {
+        const container = document.getElementById("userReviews");
+        container.innerHTML = ""; 
+
+        const reviews = JSON.parse(localStorage.getItem("userReviews")) || [];
+
+        // 📌 Only show 4★ and 5★ reviews
+        const filtered = reviews.filter(r => Number(r.rating) >= 4);
+
+        if (filtered.length === 0) {
+            container.innerHTML = "<p>No top-rated reviews yet. Be the first!</p>";
+            return;
+        }
+
+        // Show newest first
+        filtered.slice().reverse().forEach(r => {
+            const card = document.createElement("div");
+            card.className = "review-card";
+            card.innerHTML = `
+                <p>"${r.message}"</p>
+                <small>— ${r.name} ${getStars(r.rating)} • ${r.date}</small>
+            `;
+            container.appendChild(card);
+        });
+    }
+
+    loadUserReviews();
+    </script>
+
+    <!-- ⭐ AVERAGE RATING -->
+    <script>
+    function loadAverageRating() {
+        const avgBox = document.getElementById("averageRating");
+        const reviews = JSON.parse(localStorage.getItem("userReviews")) || [];
+
+        if (reviews.length === 0) {
+            avgBox.innerHTML = "⭐⭐⭐⭐⭐ 5.0/5";  
+            return;
+        }
+
+        let total = 0;
+        reviews.forEach(r => total += Number(r.rating));
+        
+        let avg = (total / reviews.length).toFixed(1);
+
+        let fullStars = "⭐".repeat(Math.round(avg));
+        let emptyStars = "☆".repeat(5 - Math.round(avg));
+
+        avgBox.innerHTML = `${fullStars}${emptyStars} ${avg}/5`;
+    }
+
+    loadAverageRating();
+    </script>
+
+</body>
+</html>

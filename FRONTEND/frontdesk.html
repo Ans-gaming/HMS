@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Front Desk Dashboard - HMS Deluxe</title>
+    <link rel="stylesheet" href="frontdesk.css">
+</head>
+<body>
+
+<header>
+    <h2>🏨 HMS Deluxe – Front Desk Dashboard</h2>
+    <button class="logout-btn" onclick="location.href='logindesk.html'">Login Desk</button>
+</header>
+
+<div class="container">
+
+    <!-- LEFT MENU -->
+    <aside class="sidebar">
+        <h3>Dashboard Menu</h3>
+        <button onclick="showSection('serviceReq')">🛎 Room Service Requests</button>
+        <button onclick="showSection('houseReq')">🧼 Housekeeping Requests</button>
+        <button onclick="showSection('kitchenReq')">🍳 Kitchen Requests</button>
+        <button onclick="showSection('bookDetails')">📘 User Booking Details</button>
+        <button onclick="showSection('cancelReq')">❌ Cancel Booking Details</button>
+        <button onclick="showSection('rooms')">🏠 Available Rooms</button>
+    </aside>
+
+    <!-- RIGHT CONTENT -->
+    <main class="content">
+
+        <!-- ROOM SERVICE SECTION -->
+        <section id="serviceReq" class="section active">
+            <h2>🛎 Room Service Requests
+                <button style="float:right; padding:6px 20px; background:red; color:white; border:none;
+                border-radius:6px; cursor:pointer;" onclick="clearRoomService()">Clear All</button>
+            </h2>
+            <table>
+                <tr>
+                    <th>Guest Name</th>
+                    <th>Room No</th>
+                    <th>Service</th>
+                    <th>Time</th>
+                    <th>Status</th>
+                </tr>
+                <tbody id="fd-roomservice-body"></tbody>
+            </table>
+        </section>
+
+        <!-- HOUSEKEEPING SECTION -->
+        <section id="houseReq" class="section">
+            <h2>🧼 Housekeeping Requests
+               <button style="float:right; padding:6px 20px; background:red; color:white; border:none; 
+               border-radius:6px; cursor:pointer;" onclick="clearHousekeeping()">Clear All</button>
+            </h2>
+            <table>
+              <tr>
+                <th>Guest Name</th>
+                <th>Room No</th>
+                <th>Work Type</th>
+                <th>Time</th>
+                <th>Status</th>
+              </tr>
+              <tbody id="fd-hk-body"></tbody>
+            </table>
+        </section>
+
+        <!-- KITCHEN REQUESTS SECTION -->
+        <section id="kitchenReq" class="section">
+          <h2>🍳 Kitchen Requests
+            <button style="float:right; padding:6px 20px; background:red; color:white; border:none; 
+            border-radius:6px; cursor:pointer;" onclick="clearKitchenRequests()"> Clear All </button>
+          </h2>
+
+            <table>
+              <tr>
+                <th>Guest Name</th>
+                <th>Room No</th>
+                <th>Food Request</th>
+                <th>Time</th>
+                <th>Status</th>
+              </tr>
+              <tbody id="fd-kitchen-body"></tbody>
+            </table>
+        </section>
+
+        <!-- BOOKING DETAILS -->
+        <section id="bookDetails" class="section">
+            <h2>📘 Current Bookings Details</h2>
+            <table>
+                <tr>
+                    <th>Guest Name</th>
+                    <th>Booking ID</th>
+                    <th>Room No</th>
+                    <th>Check-in</th>
+                    <th>Check-out</th>
+                </tr>
+               <tbody id="bookingTable"></tbody>
+            </table>
+        </section>
+
+        <!-- CANCEL BOOKING REQUESTS -->
+        <section id="cancelReq" class="section">
+            <h2>❌ Cancel Booking Details</h2>
+            <table>
+                <tr>
+                    <th>Guest Name</th>
+                    <th>Booking ID</th>
+                    <th>Reason</th>
+                    <th>Action</th>
+                </tr>
+               <tbody id="cancelTable"></tbody>
+            </table>
+        </section>
+
+        <!-- AVAILABLE ROOMS -->
+        <section id="rooms" class="section">
+            <h2>🏠 Available Rooms</h2>
+
+            <!-- ⭐ FILTERS START HERE -->
+            <div style="margin-bottom: 15px; display:flex; gap:15px; align-items:center;">
+
+            <!-- Search Room Number -->
+            <input type="number" id="searchRoom" placeholder="Search Room No..." oninput="loadAvailableRooms()" style="padding:8px; width:160px;">
+
+            <!-- Status Filter -->
+            <select id="filterStatus" onchange="loadAvailableRooms()" style="padding:8px;">
+              <option value="">All Status</option>
+              <option value="Available">Available</option>
+              <option value="Occupied">Occupied</option>
+            </select>
+ 
+            <!-- Room Type Filter -->
+            <select id="filterType" onchange="loadAvailableRooms()" style="padding:8px;">
+              <option value="">All Types</option>
+              <option value="Single Bedroom">Single Bedroom</option>
+              <option value="Double Bedroom">Double Bedroom</option>
+              <option value="Triple Bedroom">Triple Bedroom</option>
+              <option value="Deluxe Room">Deluxe Room</option>
+              <option value="Suite Room">Suite Room</option>
+            </select>
+
+            <!-- AC Type Filter -->
+            <select id="filterAC" onchange="loadAvailableRooms()" style="padding:8px;">
+              <option value="">AC Type</option>
+              <option value="AC">AC</option>
+              <option value="NON-AC">NON-AC</option>
+            </select>
+
+            </div>
+            <!-- ⭐ FILTERS END HERE -->
+
+            <table>
+            <tr>
+              <th>Room No</th>
+              <th>Type</th>
+              <th>Status</th>
+            </tr>
+            <tbody id="roomsTable"></tbody>
+            </table>
+
+        </section>
+
+    </main>
+</div>
+<footer>© 2025 HMS Deluxe. All rights reserved.</footer>
+<script>
+function showSection(id) {
+    document.querySelectorAll(".section").forEach(sec => sec.classList.remove("active"));
+    document.getElementById(id).classList.add("active");
+}
+</script>
+
+<script>
+async function loadBookings() {
+    try {
+        const res = await fetch("http://localhost:5000/all-bookings");
+        const data = await res.json();
+
+        if (!data.success) return;
+
+        let rows = "";
+
+        data.bookings.forEach(b => {
+            rows += `
+                <tr>
+                    <td>${b.guestUsername}</td>
+                    <td>${b.bookingId}</td>
+                    <td>${b.roomNumber}</td>
+                    <td>${new Date(b.checkin).toLocaleDateString('en-IN')}</td>
+                    <td>${new Date(b.checkout).toLocaleDateString('en-IN')}</td>
+                </tr>
+            `;
+        });
+
+        document.getElementById("bookingTable").innerHTML = rows;
+
+    } catch (err) {
+        console.error("Error loading bookings:", err);
+    }
+}
+</script>
+
+<script>
+async function loadCancelRequests() {
+    try {
+        const res = await fetch("http://localhost:5000/all-cancel-requests");
+        const data = await res.json();
+
+        if (!data.success) return;
+
+        let rows = "";
+
+        data.requests.forEach(r => {
+            rows += `
+                <tr>
+                    <td>${r.guestName}</td>
+                    <td>${r.bookingId}</td>
+                    <td>${r.reason}</td>
+                    <td>
+                        <button class="approve-btn" onclick="deleteCancel('${r._id}')">Delete</button>
+                    </td>
+                </tr>
+            `;
+        });
+
+        document.getElementById("cancelTable").innerHTML = rows;
+
+    } catch (err) {
+        console.error("Error loading cancel requests:", err);
+    }
+}
+
+async function deleteCancel(id) {
+    await fetch("http://localhost:5000/delete-cancel-request", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id })
+    });
+
+    loadCancelRequests(); // refresh table after delete
+}
+
+document.addEventListener("DOMContentLoaded", loadCancelRequests);
+</script>
+
+<script>
+document.addEventListener("DOMContentLoaded", loadBookings);
+</script>
+
+<script>
+async function loadAvailableRooms() {
+    try {
+        const res = await fetch("http://localhost:5000/all-rooms");
+        const data = await res.json();
+
+        if (!data.success) return;
+
+        // ⭐ Read filter values
+        let searchRoom = document.getElementById("searchRoom").value;
+        let filterStatus = document.getElementById("filterStatus").value;
+        let filterType = document.getElementById("filterType").value;
+        let filterAC = document.getElementById("filterAC").value;
+
+        let rows = "";
+
+        data.rooms.forEach(room => {
+
+            // ⭐ APPLY FILTERS
+            if (searchRoom && room.roomNumber != searchRoom) return;
+            if (filterStatus && room.status !== filterStatus) return;
+            if (filterType && room.type !== filterType) return;
+            if (filterAC && room.acType !== filterAC) return;
+
+            // choose color class
+            let statusClass = room.status === "Available" ? "available" : "occupied";
+
+            rows += `
+                <tr>
+                    <td>${room.roomNumber}</td>
+                    <td>${room.type}${room.acType !== "NA" ? " (" + room.acType + ")" : ""}</td>
+                    <td><span class="${statusClass}">${room.status}</span></td>
+                </tr>
+            `;
+        });
+
+        document.getElementById("roomsTable").innerHTML = rows;
+
+    } catch (err) {
+        console.error("Error loading rooms:", err);
+    }
+}
+
+document.addEventListener("DOMContentLoaded", loadAvailableRooms);
+</script>
+
+<script>
+function loadFrontDeskHousekeeping() {
+    let data = JSON.parse(localStorage.getItem("hkRequests")) || [];
+    let tbody = document.getElementById("fd-hk-body");
+
+    tbody.innerHTML = "";
+
+    data.forEach(req => {
+        tbody.innerHTML += `
+            <tr>
+                <td>${req.user}</td>
+                <td>${req.room}</td>
+                <td>${req.service}</td>
+                <td>${req.time}</td>
+                <td>
+                    <span class="${req.status === 'Pending' ? 'pending' : 'completed'}">
+                        ${req.status}
+                    </span>
+                </td>
+            </tr>
+        `;
+    });
+}
+
+document.addEventListener("DOMContentLoaded", loadFrontDeskHousekeeping);
+</script>
+
+<script>
+function loadFrontDeskKitchen() {
+    let data = JSON.parse(localStorage.getItem("kitchenRequests")) || [];
+    let tbody = document.getElementById("fd-kitchen-body");
+
+    tbody.innerHTML = "";
+
+    data.forEach(req => {
+        tbody.innerHTML += `
+            <tr>
+                <td>${req.user}</td>
+                <td>${req.room}</td>
+                <td>${req.food}</td>
+                <td>${req.time}</td>
+                <td>
+                    <span class="${req.status === 'Pending' ? 'pending' : 'completed'}">
+                        ${req.status}
+                    </span>
+                </td>
+            </tr>
+        `;
+    });
+}
+
+document.addEventListener("DOMContentLoaded", loadFrontDeskKitchen);
+</script>
+
+<script>
+function clearKitchenRequests() {
+    if (!confirm("Are you sure you want to clear all kitchen requests?")) return;
+
+    localStorage.removeItem("kitchenRequests");   // delete all requests
+
+    loadFrontDeskKitchen();  // reload the table
+    alert("All kitchen requests cleared!");
+}
+</script>
+
+<script>
+function loadFrontDeskRoomService() {
+    let data = JSON.parse(localStorage.getItem("frontdeskService")) || [];
+    let tbody = document.getElementById("fd-roomservice-body");
+
+    tbody.innerHTML = "";
+
+    data.forEach(req => {
+        tbody.innerHTML += `
+            <tr>
+                <td>${req.user}</td>
+                <td>${req.room}</td>
+                <td>${req.service}</td>
+                <td>${req.time}</td>
+                <td><span class="${req.status === 'Pending' ? 'pending' : 'completed'}">${req.status}</span></td>
+            </tr>
+        `;
+    });
+}
+
+document.addEventListener("DOMContentLoaded", loadFrontDeskRoomService);
+</script>
+
+<script>
+    function clearRoomService() {
+    if (!confirm("Clear all Room Service requests?")) return;
+
+    localStorage.removeItem("frontdeskService");
+    loadFrontDeskRoomService();
+    alert("All Room Service requests cleared!");
+}
+
+function clearHousekeeping() {
+    if (!confirm("Clear all Housekeeping requests?")) return;
+
+    localStorage.removeItem("hkRequests");
+    loadFrontDeskHousekeeping();
+    alert("All Housekeeping requests cleared!");
+}
+</script>
+</body>
+</html>

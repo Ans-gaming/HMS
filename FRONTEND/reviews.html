@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Reviews - HMS Deluxe</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(to bottom right, #eef2f7, #dce7f9);
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+        }
+
+        /* ---------------- HEADER ---------------- */
+        header {
+            background: linear-gradient(90deg, #1a237e, #0d47a1);
+            color: white;
+            padding: 15px 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+            position: sticky;
+            top: 0;
+            z-index: 999;
+        }
+
+        .logo {
+            font-size: 1.6em;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+         
+        .dashboard-btn {
+           background: rgba(255,255,255,0.25);
+           color: white;
+           border: none;
+           padding: 10px 16px;
+           width: auto;
+           border-radius: 50px;
+           cursor: pointer;
+           font-weight: 600;
+           backdrop-filter: blur(4px);
+           transition: 0.3s;
+        }
+
+       .dashboard-btn:hover {
+           background: white;
+           color: #1a237e;
+           transform: translateY(-2px);
+        }
+
+        /* ---------------- FORM CONTAINER ---------------- */
+        .container {
+            width: 420px;
+            background: rgba(255, 255, 255, 0.75);
+            backdrop-filter: blur(10px);
+            padding: 30px;
+            margin: 40px auto;
+            border-radius: 15px;
+            box-shadow: 0 12px 30px rgba(0,0,0,0.2);
+            animation: fadeIn 0.7s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 10px;
+            color: #1a237e;
+            font-size: 1.8em;
+        }
+
+        label {
+            font-weight: bold;
+        }
+
+        select, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #bbb;
+            border-radius: 8px;
+            margin-top: 5px;
+            margin-bottom: 15px;
+            font-size: 15px;
+            transition: 0.3s;
+            background: #f8f9fc;
+        }
+
+        input {
+            width: 94%;
+            padding: 12px;
+            border: 1px solid #bbb;
+            border-radius: 8px;
+            margin-top: 5px;
+            margin-bottom: 15px;
+            font-size: 15px;
+            transition: 0.3s;
+            background: #f8f9fc;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            border-color: #1a237e;
+            box-shadow: 0 0 10px rgba(26,35,126,0.3);
+            transform: scale(1.01);
+        }
+
+        button {
+            width: 100%;
+            padding: 13px;
+            border: none;
+            background: #1a237e;
+            color: white;
+            font-size: 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: 0.3s;
+            font-weight: bold;
+        }
+
+        button:hover {
+            background: #303f9f;
+            transform: translateY(-3px);
+        }
+
+        /* ---------------- FOOTER ---------------- */
+        footer {
+            background-color: #1a237e;
+            color: white;
+            text-align: center;
+            padding: 12px 0;
+            width: 100%;
+            margin-top: 40px;
+            box-shadow: 0 -3px 10px rgba(0,0,0,0.3);
+            position: fixed;
+            bottom: 0;
+        }
+    </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+    <div class="logo">🏨 HMS Deluxe</div>
+    <button class="dashboard-btn" onclick="location.href='userhome.html'">🏠 Dashboard</button>
+</header>
+
+<div class="container">
+    <h2>User Review</h2>
+
+    <!-- Review Form ONLY (as requested) -->
+    <form id="reviewForm">
+        <label>Your Name</label>
+        <input type="text" id="reviewName" readonly style="background:#e8e8e8b0; font-weight:bold; cursor: default; user-select: none; pointer-events: none;">
+
+        <label>Your Rating</label>
+        <select id="reviewRating" required>
+            <option value="">Select Rating</option>
+            <option value="5">⭐⭐⭐⭐⭐ - Excellent</option>
+            <option value="4">⭐⭐⭐⭐ - Very Good</option>
+            <option value="3">⭐⭐⭐ - Good</option>
+            <option value="2">⭐⭐ - Average</option>
+            <option value="1">⭐ - Poor</option>
+        </select>
+
+        <label>Your Review</label>
+        <textarea id="reviewText" rows="4" placeholder="Write your review..." required></textarea>
+
+        <button type="submit">Submit Review</button>
+    </form>
+</div>
+
+<footer>&copy; 2025 HMS Deluxe. All rights reserved.</footer>
+
+<script>
+document.getElementById("reviewForm").addEventListener("submit", function (e) {
+    e.preventDefault();
+
+    const name = document.getElementById("reviewName").value;
+    const rating = document.getElementById("reviewRating").value;
+    const message = document.getElementById("reviewText").value;
+
+    const newReview = {
+    name,
+    rating,
+    message,
+    date: new Date().toLocaleDateString()
+    };
+
+    // Get old reviews
+    const reviews = JSON.parse(localStorage.getItem("userReviews")) || [];
+
+    // Add new review
+    reviews.push(newReview);
+
+    // Save back
+    localStorage.setItem("userReviews", JSON.stringify(reviews));
+
+    alert("Thank you! Your review has been submitted.");
+    window.location.href = "userhome.html";
+});
+</script>
+
+<script>
+// Autofill username from login
+const loggedUser = localStorage.getItem("guestUsername");
+
+if (loggedUser) {
+    document.getElementById("reviewName").value = loggedUser;
+} else {
+    document.getElementById("reviewName").value = "Guest";
+}
+</script>
+
+</body>
+</html>
