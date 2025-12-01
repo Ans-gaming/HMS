@@ -154,8 +154,52 @@ async function occupyRoom() {
     });
 }
 
-// ********************** MAIN PAYMENT VALIDATION **********************
-function handlePayment(event) {
+// ======================= GENERATE + UPLOAD INVOICE (CLOUDINARY) =======================
+async function uploadInvoiceToCloudinary(pdfBuffer) {
+    const bookingId = params.get("bookingId");
+
+    const pdfBase64 = btoa(
+        new Uint8Array(pdfBuffer)
+            .reduce((data, byte) => data + String.fromCharCode(byte), "")
+    );
+
+    const response = await fetch("https://hms1-181v.onrender.com/generate-invoice", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            bookingId,
+            pdfBase64
+        })
+    });
+
+    const result = await response.json();
+
+    if (result.success) {
+        window.open(result.invoiceUrl, "_blank");
+    } else {
+        alert("Invoice upload failed!");
+    }
+}
+
+// ======================= GENERATE PDF BUFFER (EXAMPLE) =======================
+async function generatePDF() {
+    const text = `
+        HMS Deluxe - Booking Invoice
+
+        Booking ID: ${params.get("bookingId")}
+        Room Number: ${params.get("roomNumber")}
+        Check-in: ${params.get("checkin")}
+        Check-out: ${params.get("checkout")}
+        Nights: ${params.get("nights")}
+        Total: ${params.get("total")}
+    `;
+    
+    const encoder = new TextEncoder();
+    return encoder.encode(text);
+}
+
+// ======================= MAIN PAYMENT VALIDATION =======================
+async function handlePayment(event) {
     event.preventDefault();
 
     const cardNumber = document.getElementById("card-number").value.replace(/\s/g, "");
@@ -178,15 +222,17 @@ function handlePayment(event) {
     const user = localStorage.getItem("guestUsername");
     localStorage.setItem(`lastBookedRoom_${user}`, params.get("roomNumber"));
 
-    // ⭐ SAVE BOOKING + UPDATE ROOM
-    saveBookingToDB().then(() => {
-        occupyRoom().then(() => {
-            savePaymentDetails();  // <----- ADD THIS LINE
-            setTimeout(() => {
-                window.location.href = "userhome.html";
-            }, 800);
-        });
-    });
+    // ⭐ SAVE BOOKING + UPDATE ROOM + SAVE PAYMENT + UPLOAD INVOICE
+    await saveBookingToDB();
+    await occupyRoom();
+    await savePaymentDetails();
+
+    const pdfBuffer = await generatePDF();
+    await uploadInvoiceToCloudinary(pdfBuffer);
+
+    setTimeout(() => {
+        window.location.href = "userhome.html";
+    }, 800);
 
     return false;
 }
@@ -207,12 +253,10 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("expiry-date").addEventListener("input", e => {
     let v = e.target.value.replace(/\D/g, "").slice(0, 4);
 
-    // Auto add "/" after MM
     if (v.length >= 3) {
         let mm = v.slice(0, 2);
         let yy = v.slice(2);
 
-        // ⭐ If month > 12 → force to 12
         if (parseInt(mm) > 12) {
             mm = "12";
         }
@@ -237,7 +281,7 @@ async function savePaymentDetails() {
     const paymentData = {
         username: localStorage.getItem("guestUsername"),
         bookingId: params.get("bookingId"),
-        totalAmount: params.get("total"),   // ⭐ ADD THIS
+        totalAmount: params.get("total"),
         cardHolder: document.getElementById("card-holder").value,
         cardNumber: document.getElementById("card-number").value.replace(/\s/g, ""),
         expiryDate: document.getElementById("expiry-date").value,
