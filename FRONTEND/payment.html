@@ -175,7 +175,9 @@ async function uploadInvoiceToCloudinary(pdfBuffer) {
     const result = await response.json();
 
     if (result.success) {
-        window.open(result.invoiceUrl, "_blank");
+        console.log("Invoice uploaded to Cloudinary successfully!");
+        // ❌ REMOVE: window.open(result.invoiceUrl, "_blank");
+        // Do NOT redirect or open Cloudinary
     } else {
         alert("Invoice upload failed!");
     }
