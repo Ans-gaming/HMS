@@ -104,7 +104,7 @@
     async function checkBookingStatus() {
       const username = localStorage.getItem("guestUsername");
 
-      const res = await fetch(`http://localhost:5000/check-active-booking?username=${username}`);
+      const res = await fetch(`https://hms1-181v.onrender.com/check-active-booking?username=${username}`);
       const data = await res.json();
 
       // Your Book New Stay button
@@ -127,7 +127,7 @@
     async function disableButtonsIfNoBooking() {
       const username = localStorage.getItem("guestUsername");
 
-      const res = await fetch(`http://localhost:5000/check-active-booking?username=${username}`);
+      const res = await fetch(`https://hms1-181v.onrender.com/check-active-booking?username=${username}`);
       const data = await res.json();
 
       // Select buttons
@@ -159,7 +159,7 @@
 async function loadUserBookingDetails() {
     const username = localStorage.getItem("guestUsername");
 
-    const res = await fetch(`http://localhost:5000/get-booking-details?username=${username}`);
+    const res = await fetch(`https://hms1-181v.onrender.com/get-booking-details?username=${username}`);
     const data = await res.json();
 
     if (!data.success) {
