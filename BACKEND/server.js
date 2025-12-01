@@ -4,14 +4,15 @@ const cors = require("cors");
 
 const app = express();
 
-// ⭐ ENABLE CORS FOR ALL ORIGINS
+// ⭐ FINAL WORKING CORS FIX
 app.use(cors({
     origin: "*",
-    methods: ["GET", "POST"],
+    methods: ["GET", "POST", "PUT", "DELETE"],
     allowedHeaders: ["Content-Type"]
 }));
 
 app.use(express.json());
+
 app.use("/uploads", express.static("uploads"));
 
 const cloudinary = require("cloudinary").v2;
