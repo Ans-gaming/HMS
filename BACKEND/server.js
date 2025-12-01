@@ -25,6 +25,16 @@ const Booking = require("./models/booking");
 const Payment = require("./models/payment");
 const CancelRequests = require("./models/cancelRequests");  // add at top
 
+const cors = require("cors");
+
+app.use(cors({
+    origin: "*",          // allow all origins
+    methods: "GET,POST",  // allowed methods
+    credentials: true
+}));
+
+app.use(express.json());
+
 async function logVisitor(username, userType, status) {
     await Visitors.create({
         username,
@@ -863,6 +873,8 @@ app.get("/get-booking-details", async (req, res) => {
     }
 });
 
-app.listen(5000, () => {
-    console.log("Server running on 5000");
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => {
+    console.log("Server running on " + PORT);
 });
+
