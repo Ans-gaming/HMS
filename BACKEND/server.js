@@ -3,7 +3,14 @@ const mongoose = require("mongoose");
 const cors = require("cors");
 
 const app = express();
-app.use(cors());
+
+// ⭐ ENABLE CORS FOR ALL ORIGINS
+app.use(cors({
+    origin: "*",
+    methods: ["GET", "POST"],
+    allowedHeaders: ["Content-Type"]
+}));
+
 app.use(express.json());
 app.use("/uploads", express.static("uploads"));
 
@@ -15,7 +22,7 @@ cloudinary.config({
     api_secret: "i0ziehkakuCQM63CW-pytb-BlJI"
 });
 
-// Import Registration model
+// Import Models
 const Registration = require("./models/registration");
 const StaffRegister = require("./models/staffRegister");
 const JobDetails = require("./models/jobdetails");
@@ -23,17 +30,8 @@ const Visitors = require("./models/visitors");
 const Room = require("./models/rooms");
 const Booking = require("./models/booking");
 const Payment = require("./models/payment");
-const CancelRequests = require("./models/cancelRequests");  // add at top
+const CancelRequests = require("./models/cancelRequests");
 
-const cors = require("cors");
-
-app.use(cors({
-    origin: "*",          // allow all origins
-    methods: "GET,POST",  // allowed methods
-    credentials: true
-}));
-
-app.use(express.json());
 
 async function logVisitor(username, userType, status) {
     await Visitors.create({
