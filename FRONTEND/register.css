@@ -5,7 +5,7 @@ body {
     margin: 0;
     padding: 0;
     font-family: "Poppins", sans-serif;
-    background: url("C:\\Hotel MS\\images\\register.png") center/cover no-repeat fixed;
+    background: url("images/register.png") center/cover no-repeat fixed;
     background-size: 1600px 870px;
     position: relative;
     min-height: 100vh;
