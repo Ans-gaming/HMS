@@ -91,7 +91,7 @@ const guestName = localStorage.getItem("guestUsername");
 const reason = document.getElementById("reason").value;
 
 // ⭐ SAVE CANCEL REQUEST FOR FRONT DESK
-fetch("http://localhost:5000/save-cancel-request", {
+fetch("https://hms1-181v.onrender.com/save-cancel-request", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
@@ -102,7 +102,7 @@ fetch("http://localhost:5000/save-cancel-request", {
 });
 
     // ⭐ SEND CANCELLATION TO BACKEND
-    fetch("http://localhost:5000/cancel-booking", {
+    fetch("https://hms1-181v.onrender.com/cancel-booking", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ bookingId })
