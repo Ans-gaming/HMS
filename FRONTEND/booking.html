@@ -148,7 +148,7 @@ async function loadRooms(type, acType) {
     const roomList = document.getElementById("roomList");
 
     // ⭐ FETCH OCCUPIED ROOMS
-    const response = await fetch("http://localhost:5000/booked-rooms");
+    const response = await fetch("https://hms1-181v.onrender.com/booked-rooms");
     const data = await response.json();
     const occupiedRooms = data.occupied || [];
 
