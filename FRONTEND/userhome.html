@@ -187,7 +187,6 @@ async function loadUserBookingDetails() {
     document.getElementById("res-status").textContent = "Active & Confirmed";
 
     // Room Details
-    // Room Details
     document.getElementById("room-number").textContent = b.roomNumber;
     document.getElementById("room-type").textContent = `${b.roomType} (${b.acType})`;
     document.getElementById("room-rate").textContent = b.rate;
@@ -211,9 +210,37 @@ async function loadUserBookingDetails() {
 }
 
 document.addEventListener("DOMContentLoaded", loadUserBookingDetails);
-</script>
+    </script>
 
-<script>
+    <!-- ⭐ NEW: helper to upload invoice PDF to Cloudinary via backend -->
+    <script>
+    async function uploadInvoiceToCloudinary(pdfBuffer, bookingId) {
+        const pdfBase64 = btoa(
+            new Uint8Array(pdfBuffer)
+                .reduce((data, byte) => data + String.fromCharCode(byte), "")
+        );
+
+        const response = await fetch("https://hms1-181v.onrender.com/generate-invoice", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                bookingId,
+                pdfBase64
+            })
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            // Open Cloudinary-hosted invoice in new tab
+            window.open(result.invoiceUrl, "_blank");
+        } else {
+            alert("Invoice upload failed: " + (result.message || ""));
+        }
+    }
+    </script>
+
+    <script>
 async function downloadInvoice() {
 
     const { jsPDF } = window.jspdf;
@@ -314,13 +341,14 @@ async function downloadInvoice() {
     doc.setFont("helvetica", "bold");
     doc.text("Thank you for choosing HMS Deluxe!", 14, 214);
 
-    // SAVE FILE
-    doc.save(`Invoice_${bookingId}.pdf`);
+    // ⭐ Instead of saving locally, convert to buffer and upload to Cloudinary
+    const pdfBuffer = doc.output("arraybuffer");
+    await uploadInvoiceToCloudinary(pdfBuffer, bookingId);
 }
-</script>
+    </script>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
 
 </body>
 </html>
