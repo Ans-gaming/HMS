@@ -138,7 +138,7 @@ async function saveBookingToDB() {
         status: "Booked"
     };
 
-    await fetch("http://localhost:5000/save-booking", {
+    await fetch("https://hms1-181v.onrender.com/save-booking", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(bookingData)
@@ -147,7 +147,7 @@ async function saveBookingToDB() {
 
 // ======================= MARK ROOM OCCUPIED =======================
 async function occupyRoom() {
-    await fetch("http://localhost:5000/occupy-room", {
+    await fetch("https://hms1-181v.onrender.com/occupy-room", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ roomNumber: Number(params.get("roomNumber")) })
@@ -246,7 +246,7 @@ async function savePaymentDetails() {
         createdAt: new Date()
     };
 
-    await fetch("http://localhost:5000/save-payment", {
+    await fetch("https://hms1-181v.onrender.com/save-payment", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(paymentData)
