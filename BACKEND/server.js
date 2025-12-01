@@ -872,6 +872,39 @@ app.get("/get-booking-details", async (req, res) => {
     }
 });
 
+const fs = require("fs");
+
+// ⭐ GENERATE + UPLOAD INVOICE TO CLOUDINARY (Option 3)
+app.post("/generate-invoice", async (req, res) => {
+    try {
+        const { bookingId, pdfBase64 } = req.body;
+
+        // Save PDF temporarily
+        const pdfPath = `Invoice_${bookingId}.pdf`;
+        const pdfBuffer = Buffer.from(pdfBase64, "base64");
+        fs.writeFileSync(pdfPath, pdfBuffer);
+
+        // Upload to Cloudinary
+        const upload = await cloudinary.uploader.upload(pdfPath, {
+            folder: "hms_invoices",
+            resource_type: "raw",
+            format: "pdf"
+        });
+
+        // Delete local file
+        fs.unlinkSync(pdfPath);
+
+        return res.json({
+            success: true,
+            invoiceUrl: upload.secure_url
+        });
+
+    } catch (err) {
+        console.log(err);
+        res.json({ success: false, message: err.message });
+    }
+});
+
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
     console.log("Server running on " + PORT);
