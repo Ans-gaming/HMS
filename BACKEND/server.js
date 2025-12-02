@@ -88,7 +88,7 @@ app.post("/send-otp", async (req, res) => {
         });
 
         await transporter.sendMail({
-            from: "yourgmail@gmail.com",
+            from: "botkulshiva679@gmail.com",
             to: email,
             subject: "Your HMS Deluxe OTP Verification",
             text: `Your OTP is ${otp}. It expires in 5 minutes.`
