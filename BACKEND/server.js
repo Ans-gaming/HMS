@@ -71,7 +71,6 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage: storage });
 
-// ⭐ SEND OTP API (BREVO SMTP)
 app.post("/send-otp", async (req, res) => {
     try {
         const { email } = req.body;
@@ -80,31 +79,39 @@ app.post("/send-otp", async (req, res) => {
         const otp = Math.floor(100000 + Math.random() * 900000);
         otpStore[email] = otp;
 
-        const transporter = nodemailer.createTransport({
-    host: "smtp-relay.brevo.com",
-    port: 587,
-    secure: false,
-    auth: {
-        user: "9d23a0001@smtp-brevo.com",
-        pass: process.env.SMTP_KEY
-    }
-});
-
-        await transporter.sendMail({
-            from: "9d23a0001@smtp-brevo.com",
-            to: email,
-            subject: "Your HMS Deluxe OTP Verification",
-            text: `Your OTP is ${otp}. It expires in 5 minutes.`
+        const brevoRes = await fetch("https://api.brevo.com/v3/smtp/email", {
+            method: "POST",
+            headers: {
+                "accept": "application/json",
+                "api-key": process.env.BREVO_API_KEY,
+                "content-type": "application/json"
+            },
+            body: JSON.stringify({
+                sender: { email: "9d23a0001@smtp-brevo.com", name: "HMS Deluxe" },
+                to: [{ email: email }],
+                subject: "Your HMS Deluxe OTP Verification",
+                htmlContent: `
+                    <h2>Your OTP is: <b>${otp}</b></h2>
+                    <p>This OTP will expire in 5 minutes.</p>
+                `
+            })
         });
 
-        res.json({ success: true, message: "OTP sent!" });
+        const data = await brevoRes.json();
+        console.log("BREVO API RESPONSE:", data);
+
+        if (brevoRes.ok) {
+            return res.json({ success: true, message: "OTP sent!" });
+        } else {
+            return res.json({ success: false, message: "Brevo API error", data });
+        }
 
     } catch (err) {
-        console.log("SMTP ERROR:", err);
+        console.log("BREVO API ERROR:", err);
         res.json({ success: false, message: "Failed to send OTP" });
     }
 });
-
+    
 // ⭐ VERIFY OTP API
 app.post("/verify-otp", (req, res) => {
     const { email, otp } = req.body;
