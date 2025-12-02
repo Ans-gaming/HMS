@@ -66,9 +66,6 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage: storage });
 
-const axios = require("axios");
-let otpStore = {}; // temporary OTP storage
-
 // ✅ REGISTER API (Guest)
 app.post("/register", async (req, res) => {
     try {
@@ -908,61 +905,7 @@ app.post("/generate-invoice", async (req, res) => {
     }
 });
 
-// SEND OTP
-app.post("/send-otp", async (req, res) => {
-    try {
-        const { contact } = req.body;
-
-        if (!contact) {
-            return res.json({ success: false, message: "Mobile number missing" });
-        }
-
-        const otp = Math.floor(100000 + Math.random() * 900000);
-
-        otpStore[contact] = otp;
-        setTimeout(() => delete otpStore[contact], 5 * 60 * 1000); // auto delete after 5 mins
-
-        const apiKey = process.env.FAST2SMS_API_KEY;
-
-        const response = await axios.post(
-            "https://www.fast2sms.com/dev/bulkV2",
-            {
-                route: "v3",
-                sender_id: "TXTIND",
-                message: `Your HMS Deluxe OTP is ${otp}`,
-                language: "english",
-                flash: 0,
-                numbers: contact
-            },
-            {
-                headers: {
-                    authorization: apiKey,
-                    "Content-Type": "application/json"
-                }
-            }
-        );
-
-        return res.json({ success: true, message: "OTP sent!" });
-
-    } catch (err) {
-        return res.json({ success: false, message: err.message });
-    }
-});
-
-// VERIFY OTP
-app.post("/verify-otp", (req, res) => {
-    const { contact, otp } = req.body;
-
-    if (otpStore[contact] && otpStore[contact] == otp) {
-        delete otpStore[contact];
-        return res.json({ success: true, message: "OTP verified!" });
-    }
-
-    return res.json({ success: false, message: "Invalid OTP" });
-});
-
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
     console.log("Server running on " + PORT);
 });
-
