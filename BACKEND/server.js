@@ -75,6 +75,7 @@ const upload = multer({ storage: storage });
 app.post("/send-otp", async (req, res) => {
     try {
         const { email } = req.body;
+        console.log("EMAIL FROM FRONTEND:", email);
 
         const otp = Math.floor(100000 + Math.random() * 900000);
         otpStore[email] = otp;
