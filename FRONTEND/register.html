@@ -20,7 +20,7 @@
         <div class="action-hub" style="width: 400px; padding: 40px;">
             <h3>Create Your Account</h3>
 
-            <!-- ⭐ SAME FORM as your original, only action removed for JS -->
+            <!-- ⭐ SAME FORM as your original, OTP added only -->
             <form id="registerForm" onsubmit="return submitForm(event)">
                 <input type="text" name="username" placeholder="Full Name" required>
 
@@ -36,6 +36,24 @@
                 </div>
 
                 <input type="email" name="email" placeholder="Email Address" required>
+
+                <!-- ⭐ OTP SYSTEM ADDED BELOW EMAIL (NO REMOVALS) -->
+                <button type="button" onclick="sendOTP()" 
+                    class="btn-user-register" 
+                    style="background:#007bff;margin-top:10px;">
+                    Send OTP
+                </button>
+
+                <input type="number" id="otp" placeholder="Enter OTP" style="margin-top:10px;">
+
+                <button type="button" onclick="verifyOTP()" 
+                    class="btn-user-register" 
+                    style="background:green;">
+                    Verify OTP
+                </button>
+
+                <p id="otpStatus" style="color:yellow;margin-top:5px;"></p>
+                <!-- ⭐ OTP SYSTEM END -->
 
                 <input type="tel" name="contact" placeholder="Contact Number" required
                     pattern="[0-9]{10}" maxlength="10"
@@ -92,9 +110,46 @@
             return true;
         }
 
-        /* ⭐ ADDED: SEND FORM DATA TO NODE BACKEND */
+        /* ⭐ OTP SYSTEM JS ADDED HERE */
+        let otpVerified = false;
+
+        async function sendOTP() {
+            const email = document.querySelector("input[name='email']").value;
+
+            const res = await fetch("https://hms1-181v.onrender.com/send-otp", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ email })
+            });
+
+            const data = await res.json();
+            document.getElementById("otpStatus").innerText = data.message;
+        }
+
+        async function verifyOTP() {
+            const email = document.querySelector("input[name='email']").value;
+            const otp = document.getElementById("otp").value;
+
+            const res = await fetch("https://hms1-181v.onrender.com/verify-otp", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ email, otp })
+            });
+
+            const data = await res.json();
+            document.getElementById("otpStatus").innerText = data.message;
+
+            if (data.success) otpVerified = true;
+        }
+
+        /* ⭐ ADDED: SEND FORM DATA TO NODE BACKEND WITH OTP CHECK */
         async function submitForm(event) {
             event.preventDefault();
+
+            if (!otpVerified) {
+                alert("Please verify OTP first!");
+                return false;
+            }
 
             const username = document.querySelector("input[name='username']").value;
             const password = document.getElementById("password").value;
@@ -118,7 +173,7 @@
 
                 if (result.success) {
                     alert("Registration Successful!");
-                    window.location.href = "login.html"; // Redirect
+                    window.location.href = "login.html"; 
                 } else {
                     alert("Error: " + result.message);
                 }
@@ -130,17 +185,17 @@
 
     <script>
     function togglePass(id, icon) {
-    const field = document.getElementById(id);
+        const field = document.getElementById(id);
 
-    if (field.type === "password") {
-        field.type = "text";
-        icon.classList.remove("fa-eye");
-        icon.classList.add("fa-eye-slash");
-    } else {
-        field.type = "password";
-        icon.classList.remove("fa-eye-slash");
-        icon.classList.add("fa-eye");
-    }
+        if (field.type === "password") {
+            field.type = "text";
+            icon.classList.remove("fa-eye");
+            icon.classList.add("fa-eye-slash");
+        } else {
+            field.type = "password";
+            icon.classList.remove("fa-eye-slash");
+            icon.classList.add("fa-eye");
+        }
     }
     </script>
 
