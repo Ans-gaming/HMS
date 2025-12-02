@@ -66,6 +66,9 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage: storage });
 
+const axios = require("axios");
+let otpStore = {}; // temporary OTP storage
+
 // ✅ REGISTER API (Guest)
 app.post("/register", async (req, res) => {
     try {
@@ -904,9 +907,6 @@ app.post("/generate-invoice", async (req, res) => {
         res.json({ success: false, message: err.message });
     }
 });
-
-const axios = require("axios");
-let otpStore = {}; // temporary OTP storage
 
 // SEND OTP
 app.post("/send-otp", async (req, res) => {
