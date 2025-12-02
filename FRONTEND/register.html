@@ -12,7 +12,6 @@
 <body>
     <header>
         <div class="logo">🏨 HMS Deluxe</div>
-        <!-- ✅ Back Button Added -->
         <button class="btn-back-home" onclick="window.location.href='index.html'">Back to Home</button>
     </header>
 
@@ -20,7 +19,6 @@
         <div class="action-hub" style="width: 400px; padding: 40px;">
             <h3>Create Your Account</h3>
 
-            <!-- ⭐ SAME FORM as your original, only action removed for JS -->
             <form id="registerForm" onsubmit="return submitForm(event)">
                 <input type="text" name="username" placeholder="Full Name" required>
 
@@ -41,6 +39,16 @@
                     pattern="[0-9]{10}" maxlength="10"
                     title="Enter exactly 10 digits (numbers only).">
 
+                <!-- ⭐ ADDED OTP UI -->
+                <div style="display:flex; gap:10px; margin-top:10px;">
+                    <input type="text" id="otp" placeholder="Enter OTP" maxlength="6">
+                    <button type="button" onclick="sendOTP()">Send OTP</button>
+                </div>
+
+                <button type="button" onclick="verifyOTP()" style="margin-top:10px;">Verify OTP</button>
+                <p id="otpStatus" style="color:blue; margin-top:5px;"></p>
+                <!-- ⭐ END OTP UI -->
+
                 <button type="submit" class="btn-user-register">Register Account</button>
             </form>
 
@@ -51,25 +59,20 @@
     <footer>&copy; 2025 HMS Deluxe. All rights reserved.</footer>
 
     <script>
-        // FULL NAME: Only characters allowed
         document.querySelector("input[name='username']").addEventListener("keypress", function (e) {
             let char = String.fromCharCode(e.which);
-
             if (!/^[a-zA-Z ]+$/.test(char)) {
                 e.preventDefault();
             }
         });
 
-        // CONTACT NUMBER: Only digits allowed
         document.querySelector("input[name='contact']").addEventListener("keypress", function (e) {
             let char = String.fromCharCode(e.which);
-
             if (!/^[0-9]$/.test(char)) {
                 e.preventDefault();
             }
         });
 
-        // FORM VALIDATION (original)
         function validateForm() {
             const password = document.getElementById("password").value;
             const confirm = document.getElementById("confirm_password").value;
@@ -81,20 +84,57 @@
             return true;
         }
 
-        function validateQuickForm() {
-            const password = document.getElementById("quick_password").value;
-            const passwordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&]).{8,}$/;
+        /* ⭐ SEND OTP */
+        async function sendOTP() {
+            const contact = document.querySelector("input[name='contact']").value;
 
-            if (!passwordPattern.test(password)) {
-                alert("Password must have uppercase, lowercase, number, and special character, and be at least 8 characters long.");
-                return false;
+            if (contact.length !== 10) {
+                alert("Enter valid 10-digit number");
+                return;
             }
-            return true;
+
+            const res = await fetch("https://hms1-181v.onrender.com/send-otp", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ contact })
+            });
+
+            const data = await res.json();
+            document.getElementById("otpStatus").innerText = data.message;
         }
 
-        /* ⭐ ADDED: SEND FORM DATA TO NODE BACKEND */
+        /* ⭐ VERIFY OTP */
+        async function verifyOTP() {
+            const contact = document.querySelector("input[name='contact']").value;
+            const otp = document.getElementById("otp").value;
+
+            const res = await fetch("https://hms1-181v.onrender.com/verify-otp", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ contact, otp })
+            });
+
+            const result = await res.json();
+
+            if (result.success) {
+                document.getElementById("otpStatus").style.color = "green";
+                document.getElementById("otpStatus").innerText = "OTP Verified ✔";
+                window.otpVerified = true;
+            } else {
+                document.getElementById("otpStatus").style.color = "red";
+                document.getElementById("otpStatus").innerText = "Invalid OTP ❌";
+                window.otpVerified = false;
+            }
+        }
+
+        /* ⭐ UPDATED submitForm — OTP REQUIRED */
         async function submitForm(event) {
             event.preventDefault();
+
+            if (!window.otpVerified) {
+                alert("Please verify OTP before registering!");
+                return;
+            }
 
             const username = document.querySelector("input[name='username']").value;
             const password = document.getElementById("password").value;
@@ -118,7 +158,7 @@
 
                 if (result.success) {
                     alert("Registration Successful!");
-                    window.location.href = "login.html"; // Redirect
+                    window.location.href = "login.html";
                 } else {
                     alert("Error: " + result.message);
                 }
@@ -130,17 +170,17 @@
 
     <script>
     function togglePass(id, icon) {
-    const field = document.getElementById(id);
+        const field = document.getElementById(id);
 
-    if (field.type === "password") {
-        field.type = "text";
-        icon.classList.remove("fa-eye");
-        icon.classList.add("fa-eye-slash");
-    } else {
-        field.type = "password";
-        icon.classList.remove("fa-eye-slash");
-        icon.classList.add("fa-eye");
-    }
+        if (field.type === "password") {
+            field.type = "text";
+            icon.classList.remove("fa-eye");
+            icon.classList.add("fa-eye-slash");
+        } else {
+            field.type = "password";
+            icon.classList.remove("fa-eye-slash");
+            icon.classList.add("fa-eye");
+        }
     }
     </script>
 
