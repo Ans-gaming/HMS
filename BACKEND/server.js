@@ -80,14 +80,14 @@ app.post("/send-otp", async (req, res) => {
         otpStore[email] = otp;
 
         const transporter = nodemailer.createTransport({
-            host: "smtp-relay.brevo.com",
-            port: 587,
-            secure: false,
-            auth: {
-                user: "9d23a0001@smtp-brevo.com",     // your Brevo login
-                pass: "xkeysib-***************"     // your full SMTP Key
-            }
-        });
+    host: "smtp-relay.brevo.com",
+    port: 587,
+    secure: false,
+    auth: {
+        user: "9d23a0001@smtp-brevo.com",
+        pass: process.env.SMTP_KEY
+    }
+});
 
         await transporter.sendMail({
             from: "9d23a0001@smtp-brevo.com",
