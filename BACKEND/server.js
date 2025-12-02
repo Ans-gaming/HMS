@@ -82,8 +82,8 @@ app.post("/send-otp", async (req, res) => {
         const transporter = nodemailer.createTransport({
             service: "gmail",
             auth: {
-                user: "yourgmail@gmail.com",
-                pass: "your-app-password"  // MUST use Gmail App Password
+                user: "botkulshiva679@gmail.com",
+                pass: "kpga oneo duey qqze"  // MUST use Gmail App Password
             }
         });
 
