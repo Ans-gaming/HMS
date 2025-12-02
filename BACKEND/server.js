@@ -23,6 +23,11 @@ cloudinary.config({
     api_secret: "i0ziehkakuCQM63CW-pytb-BlJI"
 });
 
+const nodemailer = require("nodemailer");
+
+// Temporary storage for OTP
+let otpStore = {};
+
 // Import Models
 const Registration = require("./models/registration");
 const StaffRegister = require("./models/staffRegister");
@@ -65,6 +70,51 @@ const storage = multer.diskStorage({
 });
 
 const upload = multer({ storage: storage });
+
+// ⭐ SEND OTP API (BREVO SMTP)
+app.post("/send-otp", async (req, res) => {
+    try {
+        const { email } = req.body;
+
+        const otp = Math.floor(100000 + Math.random() * 900000);
+        otpStore[email] = otp;
+
+        const transporter = nodemailer.createTransport({
+            host: "smtp-relay.brevo.com",
+            port: 587,
+            secure: false,
+            auth: {
+                user: "9d23a0001@smtp-brevo.com",     // your Brevo login
+                pass: "xkeysib-***************"     // your full SMTP Key
+            }
+        });
+
+        await transporter.sendMail({
+            from: "9d23a0001@smtp-brevo.com",
+            to: email,
+            subject: "Your HMS Deluxe OTP Verification",
+            text: `Your OTP is ${otp}. It expires in 5 minutes.`
+        });
+
+        res.json({ success: true, message: "OTP sent!" });
+
+    } catch (err) {
+        console.log("SMTP ERROR:", err);
+        res.json({ success: false, message: "Failed to send OTP" });
+    }
+});
+
+// ⭐ VERIFY OTP API
+app.post("/verify-otp", (req, res) => {
+    const { email, otp } = req.body;
+
+    if (otpStore[email] && otpStore[email] == otp) {
+        delete otpStore[email];
+        return res.json({ success: true, message: "OTP Verified!" });
+    }
+
+    res.json({ success: false, message: "Invalid OTP" });
+});
 
 // ✅ REGISTER API (Guest)
 app.post("/register", async (req, res) => {
