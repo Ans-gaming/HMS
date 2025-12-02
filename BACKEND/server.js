@@ -87,7 +87,7 @@ app.post("/send-otp", async (req, res) => {
                 "content-type": "application/json"
             },
             body: JSON.stringify({
-                sender: { email: "9d23a0001@smtp-brevo.com", name: "HMS Deluxe" },
+                sender: { email: "botkulshiva679@gmail.com", name: "HMS Deluxe" },
                 to: [{ email: email }],
                 subject: "Your HMS Deluxe OTP Verification",
                 htmlContent: `
