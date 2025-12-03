@@ -963,6 +963,77 @@ app.post("/generate-invoice", async (req, res) => {
     }
 });
 
+// ⭐ FORGOT PASSWORD — SEND OTP (username or email)
+app.post("/forgot-send-otp", async (req, res) => {
+    try {
+        const { userInput } = req.body;
+
+        // Find user by username OR email
+        const user =
+            await Registration.findOne({ username: userInput }) ||
+            await Registration.findOne({ email: userInput });
+
+        if (!user) {
+            return res.json({ success: false, message: "User not found" });
+        }
+
+        const email = user.email;
+
+        // Generate OTP
+        const otp = Math.floor(100000 + Math.random() * 900000);
+        otpStore[email] = otp;
+
+        // Send OTP with Brevo API
+        const brevoRes = await fetch("https://api.brevo.com/v3/smtp/email", {
+            method: "POST",
+            headers: {
+                "accept": "application/json",
+                "api-key": process.env.BREVO_API_KEY,
+                "content-type": "application/json"
+            },
+            body: JSON.stringify({
+                sender: { email: "botkulshiva679@gmail.com", name: "HMS Deluxe" },
+                to: [{ email }],
+                subject: "HMS Password Reset OTP",
+                htmlContent: `<h2>Your Password Reset OTP is <b>${otp}</b></h2>`
+            })
+        });
+
+        return res.json({ success: true, message: "OTP sent!", email });
+
+    } catch (err) {
+        res.json({ success: false, message: "Error sending OTP" });
+    }
+});
+
+
+// ⭐ VERIFY FORGOT PASSWORD OTP
+app.post("/forgot-verify-otp", (req, res) => {
+    const { email, otp } = req.body;
+
+    if (otpStore[email] && otpStore[email] == otp) {
+        delete otpStore[email];
+        return res.json({ success: true, message: "OTP Verified!" });
+    }
+
+    res.json({ success: false, message: "Invalid OTP" });
+});
+
+
+// ⭐ RESET PASSWORD
+app.post("/reset-password", async (req, res) => {
+    try {
+        const { email, password } = req.body;
+
+        await Registration.updateOne({ email }, { password });
+
+        res.json({ success: true, message: "Password updated!" });
+
+    } catch (err) {
+        res.json({ success: false, message: "Failed to reset password" });
+    }
+});
+
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
     console.log("Server running on " + PORT);
