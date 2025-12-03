@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Staff Forgot Password - HMS Deluxe</title>
-     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link rel="stylesheet" href="forgot.css">
 </head>
 <body>
@@ -119,22 +118,6 @@ async function resetStaffPassword() {
         alert(data.message);
     }
 }
-</script>
-
-<script>
-function toggleLoginPass(icon) {
-          const field = document.getElementById("login_password");
-
-          if (field.type === "password") {
-            field.type = "text";
-            icon.classList.remove("fa-eye");
-            icon.classList.add("fa-eye-slash");
-          } else {
-            field.type = "password";
-            icon.classList.remove("fa-eye-slash");
-            icon.classList.add("fa-eye");
-          }
-        }
 </script>
 
 </body>
