@@ -212,27 +212,6 @@ footer {
     }
 }
 
-.password-container {
-    position: relative;
-    width: 100%;
-}
-
-.password-container input {
-    width: 95;
-    padding-right: 45px;
-}
-
-.togglePassword {
-    position: absolute;
-    right: 18px;
-    top: 50%;
-    transform: translateY(-50%);
-    font-size: 18px;
-    color: #555;
-    cursor: pointer;
-    transition: 0.2s ease-in-out;
-}
-
 .togglePassword:hover {
     color: #000;
 }
