@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Forgot Password - HMS Deluxe</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link rel="stylesheet" href="forgot.css"> 
 </head>
 <body>
@@ -30,8 +31,15 @@
 
             <!-- Reset Password Section (visible after OTP verified) -->
             <div id="resetSection" style="display:none;margin-top:20px;">
-                <input type="password" id="newPass" placeholder="New Password">
-                <input type="password" id="confirmPass" placeholder="Confirm Password">
+                <div class="password-container" style="margin-top:10px;">
+                  <input type="password" id="newPass" placeholder="New Password">
+                  <i class="fa-solid fa-eye togglePassword" onclick="toggleStaffPass('newPass', this)"></i>
+                </div>
+
+                <div class="password-container" style="margin-top:10px;">
+                  <input type="password" id="confirmPass" placeholder="Confirm Password">
+                  <i class="fa-solid fa-eye togglePassword" onclick="toggleStaffPass('confirmPass', this)"></i>
+                </div>
 
                 <button class="btn-user-login" style="background:#ff9800;" onclick="resetPassword()">
                     Reset Password
@@ -127,6 +135,20 @@ async function resetPassword() {
     }
 }
 </script>
+<script>
+function toggleStaffPass(id, icon) {
+    const field = document.getElementById(id);
 
+    if (field.type === "password") {
+        field.type = "text";
+        icon.classList.remove("fa-eye");
+        icon.classList.add("fa-eye-slash");
+    } else {
+        field.type = "password";
+        icon.classList.remove("fa-eye-slash");
+        icon.classList.add("fa-eye");
+    }
+}
+</script>
 </body>
 </html>
