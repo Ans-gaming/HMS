@@ -1034,6 +1034,70 @@ app.post("/reset-password", async (req, res) => {
     }
 });
 
+app.post("/staff-forgot-send-otp", async (req, res) => {
+    try {
+        const { staffInput } = req.body;
+
+        const staff =
+            await StaffRegister.findOne({ fullname: staffInput }) ||
+            await StaffRegister.findOne({ email: staffInput });
+
+        if (!staff) {
+            return res.json({ success: false, message: "Staff not found" });
+        }
+
+        const email = staff.email;
+
+        const otp = Math.floor(100000 + Math.random() * 900000);
+        otpStore[email] = otp;
+
+        // Send OTP
+        await fetch("https://api.brevo.com/v3/smtp/email", {
+            method: "POST",
+            headers: {
+                "accept": "application/json",
+                "api-key": process.env.BREVO_API_KEY,
+                "content-type": "application/json"
+            },
+            body: JSON.stringify({
+                sender: { email: "botkulshiva679@gmail.com", name: "HMS Deluxe" },
+                to: [{ email }],
+                subject: "Staff Password Reset OTP",
+                htmlContent: `<h2>Your OTP is <b>${otp}</b></h2>`
+            })
+        });
+
+        res.json({ success: true, message: "OTP sent!", email });
+
+    } catch (err) {
+        res.json({ success: false, message: "Error sending OTP" });
+    }
+});
+
+app.post("/staff-forgot-verify-otp", (req, res) => {
+    const { email, otp } = req.body;
+
+    if (otpStore[email] && otpStore[email] == otp) {
+        delete otpStore[email];
+        return res.json({ success: true, message: "OTP Verified!" });
+    }
+
+    return res.json({ success: false, message: "Invalid OTP" });
+});
+
+app.post("/staff-reset-password", async (req, res) => {
+    try {
+        const { email, password } = req.body;
+
+        await StaffRegister.updateOne({ email }, { password });
+
+        res.json({ success: true, message: "Staff password updated!" });
+
+    } catch (err) {
+        res.json({ success: false, message: "Failed to reset password" });
+    }
+});
+
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
     console.log("Server running on " + PORT);
