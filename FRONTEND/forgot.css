@@ -214,11 +214,11 @@ footer {
 
 .password-container {
     position: relative;
-    width: 100%;
+    width: 85%;
 }
 
 .password-container input {
-    width: 85;
+    width: 85px;
     padding-right: 45px;
 }
 
