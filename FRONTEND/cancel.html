@@ -101,23 +101,6 @@ fetch("https://hms1-181v.onrender.com/save-cancel-request", {
     })
 });
 
-// ⭐ STEP A — EMAIL INVOICE + SEND REASON
-await fetch("https://hms1-181v.onrender.com/email-invoice", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-        bookingId,
-        reason
-    })
-});
-
-// ⭐ STEP B — CANCEL BOOKING
-await fetch("https://hms1-181v.onrender.com/cancel-booking", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ bookingId })
-});
-
     // ⭐ SEND CANCELLATION TO BACKEND
     fetch("https://hms1-181v.onrender.com/cancel-booking", {
         method: "POST",
