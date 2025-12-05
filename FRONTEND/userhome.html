@@ -295,6 +295,10 @@ async function downloadInvoice() {
     doc.setFontSize(12);
     doc.text(`Guest Name     : ${username}`, 14, 48);
     doc.text(`WiFi Password  : ${wifi}`, 14, 56);
+    // ⭐ Retrieve combined guest names
+let combinedGuests = localStorage.getItem("guestNamesCombined") || "Not Provided";
+
+doc.text(`Guests Staying : ${combinedGuests}`, 14, 64);
 
     // -------------------------------------------------------
     // BOOKING INFORMATION (BOLD HEADER)
