@@ -51,19 +51,15 @@
     /* ----------------------------------------------------
        LIVE VALIDATION
        Format required: ABC-1234-5678
-       • First 3 = letters only
-       • Next 8 = numbers only
     ------------------------------------------------------*/
     function validateBookingId(input) {
         let value = input.value.toUpperCase().replace(/[^A-Z0-9]/g, "");
 
-        let letters = value.substring(0, 3).replace(/[^A-Z]/g, "");  // first 3 letters
-        let nums = value.substring(3).replace(/[^0-9]/g, "");       // rest digits only
+        let letters = value.substring(0, 3).replace(/[^A-Z]/g, "");  
+        let nums = value.substring(3).replace(/[^0-9]/g, "");       
 
-        // Limit digits to exactly 8
         nums = nums.substring(0, 8);
 
-        // Build the formatted value
         let formatted = letters;
         if (nums.length > 0) formatted += "-" + nums.substring(0, 4);
         if (nums.length > 4) formatted += "-" + nums.substring(4);
@@ -74,51 +70,61 @@
     /* ----------------------------------------------------
        FINAL CHECK ON SUBMIT
     ------------------------------------------------------*/
-    document.getElementById("cancelForm").addEventListener("submit", function(e) {
-    e.preventDefault();
+    document.getElementById("cancelForm").addEventListener("submit", async function(e) {
+        e.preventDefault();
 
-    const bookingId = document.getElementById("bookingId").value;
+        const bookingId = document.getElementById("bookingId").value;
+        const reason = document.getElementById("reason").value;
+        const guestName = localStorage.getItem("guestUsername");
 
-    const validFormat = /^[A-Z]{3}-\d{4}-\d{4}$/;
+        const validFormat = /^[A-Z]{3}-\d{4}-\d{4}$/;
 
-    if (!validFormat.test(bookingId)) {
-        alert("❌ Invalid Booking ID! Format must be: ABC-1234-5678");
-        return;
-    }
+        if (!validFormat.test(bookingId)) {
+            alert("❌ Invalid Booking ID! Format must be: ABC-1234-5678");
+            return;
+        }
 
-    // ⭐ GET EXTRA DETAILS
-const guestName = localStorage.getItem("guestUsername");
-const reason = document.getElementById("reason").value;
+        // ⭐ SAVE CANCEL REQUEST FOR FRONT DESK
+        fetch("https://hms1-181v.onrender.com/save-cancel-request", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                guestName,
+                bookingId,
+                reason
+            })
+        });
 
-// ⭐ SAVE CANCEL REQUEST FOR FRONT DESK
-fetch("https://hms1-181v.onrender.com/save-cancel-request", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-        guestName,
-        bookingId,
-        reason
-    })
-});
+        // ⭐ STEP A — EMAIL INVOICE WITH CANCELLATION REASON
+        await fetch("https://hms1-181v.onrender.com/email-invoice", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                bookingId,
+                reason
+            })
+        });
 
-    // ⭐ SEND CANCELLATION TO BACKEND
-    fetch("https://hms1-181v.onrender.com/cancel-booking", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ bookingId })
+        // ⭐ STEP B — CANCEL BOOKING IN SYSTEM
+        await fetch("https://hms1-181v.onrender.com/cancel-booking", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ bookingId })
+        });
+
+        // ⭐ SHOW POPUP
+        document.getElementById("popup").style.display = "flex";
+
+        document.getElementById("okBtn").onclick = function () {
+
+            // ⭐ Remove last booked ID
+            const user = localStorage.getItem("guestUsername");
+            localStorage.removeItem(`lastBookingId_${user}`);
+
+            // Redirect
+            window.location.href = "userhome.html";
+        };
     });
-
-    // ⭐ SHOW POPUP
-    document.getElementById("popup").style.display = "flex";
-
-    document.getElementById("okBtn").onclick = function () {
-        // ⭐ STEP 3 — Remove last booking so user can book again
-        const user = localStorage.getItem("guestUsername");
-        localStorage.removeItem(`lastBookingId_${user}`);
-
-        window.location.href = "userhome.html";
-    };
-});
 
 </script>
 
