@@ -313,18 +313,18 @@ if (childNames.trim() !== "") {
     // -------------------------------------------------------
     // BOOKING INFORMATION (BOLD HEADER)
     // -------------------------------------------------------
-    doc.text("--------------------------------------------------------------", 14, 70);
+    doc.text("--------------------------------------------------------------", 14, 75);
 
     doc.setFont("helvetica", "bold");
     doc.setFontSize(14);
-    doc.text("[ BOOKING INFORMATION ]", 14, 76);
+    doc.text("[ BOOKING INFORMATION ]", 14, 80);
 
     doc.setFont("helvetica", "normal");
     doc.setFontSize(12);
-    doc.text(`Booking ID   : ${bookingId}`, 14, 86);
-    doc.text(`Check-in     : ${checkin}`, 14, 94);
-    doc.text(`Check-out    : ${checkout}`, 14, 102);
-    doc.text(`Status       : ${status}`, 14, 110);
+    doc.text(`Booking ID   : ${bookingId}`, 14, 90);
+    doc.text(`Check-in     : ${checkin}`, 14, 98);
+    doc.text(`Check-out    : ${checkout}`, 14, 106);
+    doc.text(`Status       : ${status}`, 14, 114);
 
     // -------------------------------------------------------
     // ROOM DETAILS (BOLD HEADER)
