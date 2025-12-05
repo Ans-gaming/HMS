@@ -296,9 +296,19 @@ async function downloadInvoice() {
     doc.text(`Guest Name     : ${username}`, 14, 48);
     doc.text(`WiFi Password  : ${wifi}`, 14, 56);
     // ⭐ Retrieve combined guest names
-let combinedGuests = localStorage.getItem("guestNamesCombined") || "Not Provided";
+// ⭐ Retrieve separate adult & child names
+let adultNames = localStorage.getItem("adultNames") || "None";
+let childNames = localStorage.getItem("childNames") || "";
 
-doc.text(`Guests Staying : ${combinedGuests}`, 14, 64);
+// Adults come first
+doc.text(`Adults         : ${adultNames}`, 14, 64);
+
+// Add children ONLY if they exist
+if (childNames.trim() !== "") {
+    doc.text(`Children       : ${childNames}`, 14, 72);
+} else {
+    doc.text(`Children       : None`, 14, 72);
+}
 
     // -------------------------------------------------------
     // BOOKING INFORMATION (BOLD HEADER)
