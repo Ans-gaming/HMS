@@ -49,6 +49,13 @@
           </select>
         </div>
 
+        <div id="guestDetailsSection" style="display:none; margin-top:20px;">
+          <h3>Guest Details</h3>
+          <div id="adultContainer"></div>
+          <h4>Children (Optional)</h4>
+          <div id="childContainer"></div>
+        </div>
+
         <div id="roomList" class="room-list"></div>
 
         <div class="rate-display">
@@ -104,6 +111,12 @@ let selectedRate = 0;
 // -------------------------------------------
 function showAvailableRooms() {
     const type = document.getElementById("roomType").value;
+
+    // ⭐ STEP 3 — Load guest fields when room type changes
+    if (type) {
+        loadGuestFields(type);
+    }
+
     const acOption = document.getElementById("acOption");
     const acType = document.getElementById("acType").value;
 
@@ -199,6 +212,49 @@ function updateTotal() {
     if (selectedRate > 0) {
         document.getElementById("totalPrice").innerText =
             nights > 0 ? `₹${(selectedRate * nights).toLocaleString()}` : "--";
+    }
+}
+
+    // -------------------------------------------
+// GUEST DETAILS LOGIC BASED ON ROOM TYPE
+// -------------------------------------------
+function loadGuestFields(roomType) {
+    const guestSection = document.getElementById("guestDetailsSection");
+    const adultDiv = document.getElementById("adultContainer");
+    const childDiv = document.getElementById("childContainer");
+
+    guestSection.style.display = "block";
+    adultDiv.innerHTML = "";
+    childDiv.innerHTML = "";
+
+    let adults = 0, children = 0;
+
+    if (roomType === "single") {
+        adults = 1; children = 1;
+    } else if (roomType === "double") {
+        adults = 2; children = 1;
+    } else if (roomType === "triple") {
+        adults = 3; children = 1;
+    } else if (roomType === "deluxe") {
+        adults = 3; children = 2;
+    } else if (roomType === "suite") {
+        adults = 5; children = 2;
+    }
+
+    // Adult fields
+    for (let i = 1; i <= adults; i++) {
+        adultDiv.innerHTML += `
+            <label>Adult ${i} Name:</label>
+            <input type="text" name="adult${i}" required placeholder="Enter name">
+        `;
+    }
+
+    // Child fields (optional)
+    for (let c = 1; c <= children; c++) {
+        childDiv.innerHTML += `
+            <label>Child ${c} Name (Optional):</label>
+            <input type="text" name="child${c}" placeholder="Enter name (optional)">
+        `;
     }
 }
 
