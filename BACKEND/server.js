@@ -1124,17 +1124,20 @@ app.post("/email-invoice", async (req, res) => {
 
         const invoiceUrl = payment.invoiceUrl;
 
-        // 4️⃣ Download invoice PDF as Buffer
+        // 4️⃣ Download invoice PDF as Buffer (Node 18+ supports fetch)
         const response = await fetch(invoiceUrl);
         const arrayBuffer = await response.arrayBuffer();
         const pdfBuffer = Buffer.from(arrayBuffer);
 
-        // 5️⃣ Setup Gmail Transporter
+        // 5️⃣ Setup Gmail Transporter with TLS FIX
         const transporter = nodemailer.createTransport({
             service: "gmail",
             auth: {
                 user: "botkulshiva679@gmail.com",
-                pass: "quhesyphnykgxglz"   // <--- PUT YOUR APP PASSWORD HERE
+                pass: "quhesyphnykgxglz"   // your app password
+            },
+            tls: {
+                rejectUnauthorized: false
             }
         });
 
@@ -1149,9 +1152,11 @@ app.post("/email-invoice", async (req, res) => {
 
                 <p>Your booking was cancelled successfully.</p>
 
-                <p><b>Booking ID:</b> ${bookingId}<br>
+                <p>
+                <b>Booking ID:</b> ${bookingId}<br>
                 <b>Room Number:</b> ${booking.roomNumber}<br>
-                <b>Reason for Cancellation:</b> ${reason}</b></p>
+                <b>Reason for Cancellation:</b> ${reason}
+                </p>
 
                 <p>Your invoice PDF is attached to this email.</p>
 
@@ -1168,7 +1173,7 @@ app.post("/email-invoice", async (req, res) => {
         res.json({ success: true, message: "Email sent successfully!" });
 
     } catch (err) {
-        console.log("EMAIL ERROR:", err);
+        console.log("EMAIL ERROR:", err.response || err);
         res.json({ success: false, message: err.message });
     }
 });
