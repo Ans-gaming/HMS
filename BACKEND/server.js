@@ -24,7 +24,6 @@ cloudinary.config({
 });
 
 const nodemailer = require("nodemailer");
-const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
 
 // Temporary storage for OTP
 let otpStore = {};
