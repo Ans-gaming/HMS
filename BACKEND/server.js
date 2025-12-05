@@ -1100,7 +1100,7 @@ app.post("/staff-reset-password", async (req, res) => {
 
 app.post("/email-invoice", async (req, res) => {
     try {
-        const { bookingId } = req.body;
+        const { bookingId, reason } = req.body;
 
         // 1️⃣ Get booking
         const booking = await Booking.findOne({ bookingId });
@@ -1110,43 +1110,57 @@ app.post("/email-invoice", async (req, res) => {
 
         // 2️⃣ Get user email
         const user = await Registration.findOne({ username: booking.guestUsername });
+        if (!user || !user.email) {
+            return res.json({ success: false, message: "User email not found" });
+        }
+
         const email = user.email;
 
-        // 3️⃣ Get invoice URL from your Cloudinary uploads table
+        // 3️⃣ Get invoice URL from Payment
         const payment = await Payment.findOne({ bookingId });
-
         if (!payment || !payment.invoiceUrl) {
-            return res.json({ success: false, message: "Invoice not found" });
+            return res.json({ success: false, message: "Invoice URL missing" });
         }
 
         const invoiceUrl = payment.invoiceUrl;
 
-        // 4️⃣ Download PDF as buffer
-        const fileRes = await fetch(invoiceUrl);
-        const pdfBuffer = await fileRes.arrayBuffer();
+        // 4️⃣ Download invoice PDF as Buffer
+        const response = await fetch(invoiceUrl);
+        const arrayBuffer = await response.arrayBuffer();
+        const pdfBuffer = Buffer.from(arrayBuffer);
 
-        // 5️⃣ Send email with PDF
+        // 5️⃣ Setup Gmail Transporter
         const transporter = nodemailer.createTransport({
             service: "gmail",
             auth: {
                 user: "botkulshiva679@gmail.com",
-                pass: "your-app-password"
+                pass: "YOUR_APP_PASSWORD"   // <--- PUT YOUR APP PASSWORD HERE
             }
         });
 
+        // 6️⃣ Send email
         await transporter.sendMail({
             from: "HMS Deluxe <botkulshiva679@gmail.com>",
             to: email,
-            subject: "Your Booking Cancellation Receipt",
+            subject: "Booking Cancellation Receipt – HMS Deluxe",
             html: `
-                <h2>Your booking has been cancelled</h2>
-                <p>Please find the official invoice attached.</p>
-                <p><b>Booking ID:</b> ${bookingId}</p>
+                <h2>Your Booking Has Been Cancelled</h2>
+                <p>Hello <b>${booking.guestUsername}</b>,</p>
+
+                <p>Your booking was cancelled successfully.</p>
+
+                <p><b>Booking ID:</b> ${bookingId}<br>
+                <b>Room Number:</b> ${booking.roomNumber}<br>
+                <b>Reason for Cancellation:</b> ${reason}</b></p>
+
+                <p>Your invoice PDF is attached to this email.</p>
+
+                <p>Thank you,<br>HMS Deluxe Team</p>
             `,
             attachments: [
                 {
-                    filename: `${bookingId}.pdf`,
-                    content: Buffer.from(pdfBuffer),
+                    filename: `Invoice_${bookingId}.pdf`,
+                    content: pdfBuffer
                 }
             ]
         });
@@ -1154,7 +1168,7 @@ app.post("/email-invoice", async (req, res) => {
         res.json({ success: true, message: "Email sent successfully!" });
 
     } catch (err) {
-        console.log(err);
+        console.log("EMAIL ERROR:", err);
         res.json({ success: false, message: err.message });
     }
 });
