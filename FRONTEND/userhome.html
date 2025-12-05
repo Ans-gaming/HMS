@@ -159,11 +159,12 @@
 async function loadUserBookingDetails() {
     const username = localStorage.getItem("guestUsername");
 
-    const res = await fetch(`https://hms1-181v.onrender.com/get-booking-details?username=${username}`);
-    const data = await res.json();
+    // ⭐ FIRST check if user has any active booking
+    const activeRes = await fetch(`https://hms1-181v.onrender.com/check-active-booking?username=${username}`);
+    const activeData = await activeRes.json();
 
-    if (!data.success) {
-        // no booking → clear cards
+    if (!activeData.active) {
+        // No active booking → clear cards
         document.getElementById("res-bookingId").textContent = "--";
         document.getElementById("res-checkin").textContent = "--";
         document.getElementById("res-checkout").textContent = "--";
@@ -172,11 +173,17 @@ async function loadUserBookingDetails() {
         document.getElementById("room-number").textContent = "--";
         document.getElementById("room-type").textContent = "--";
         document.getElementById("room-rate").textContent = "--";
+        document.getElementById("wifi-password").textContent = "--";
 
         document.getElementById("bill-nights").textContent = "--";
         document.getElementById("bill-total").textContent = "--";
+
         return;
     }
+
+    // ⭐ User HAS an active booking → fetch it
+    const res = await fetch(`https://hms1-181v.onrender.com/get-booking-details?username=${username}`);
+    const data = await res.json();
 
     const b = data.booking;
 
@@ -191,20 +198,11 @@ async function loadUserBookingDetails() {
     document.getElementById("room-type").textContent = `${b.roomType} (${b.acType})`;
     document.getElementById("room-rate").textContent = b.rate;
 
-    // WiFi PASSWORD generation
-    let wifiPwd = "HMS";
-
-    if (b.acType === "AC") {
-      wifiPwd += "AC";
-    } else {
-      wifiPwd += "NONAC";
-    }
-
-    wifiPwd += b.roomNumber; // add room number
-
+    // WiFi password logic
+    let wifiPwd = "HMS" + (b.acType === "AC" ? "AC" : "NONAC") + b.roomNumber;
     document.getElementById("wifi-password").textContent = wifiPwd;
 
-    // Billing Summary
+    // Billing
     document.getElementById("bill-nights").textContent = b.nights;
     document.getElementById("bill-total").textContent = b.total;
 }
