@@ -296,21 +296,22 @@ function confirmBooking() {
     const user = localStorage.getItem("guestUsername");
     localStorage.setItem(`lastBookingId_${user}`, bookingId);
 
-  // ⭐ Collect all adult & child names
-let guestNames = [];
+  let adults = [];
+let children = [];
 
 // Adults
 document.querySelectorAll("#adultContainer input").forEach(input => {
-    if (input.value.trim() !== "") guestNames.push(input.value.trim());
+    if (input.value.trim() !== "") adults.push(input.value.trim());
 });
 
-// Children (optional)
+// Children
 document.querySelectorAll("#childContainer input").forEach(input => {
-    if (input.value.trim() !== "") guestNames.push(input.value.trim());
+    if (input.value.trim() !== "") children.push(input.value.trim());
 });
 
-// ⭐ Save into localStorage to use in invoice
-localStorage.setItem("guestNamesCombined", guestNames.join(", "));
+// Save separately
+localStorage.setItem("adultNames", adults.join(", "));
+localStorage.setItem("childNames", children.join(", "));
 
     window.location.href = "payment.html?" + params.toString();
     return false;
