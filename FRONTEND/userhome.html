@@ -295,6 +295,7 @@ async function downloadInvoice() {
     doc.setFontSize(12);
     doc.text(`Guest Name     : ${username}`, 14, 48);
     doc.text(`WiFi Password  : ${wifi}`, 14, 56);
+    
     // ⭐ Retrieve combined guest names
 // ⭐ Retrieve separate adult & child names
 let adultNames = localStorage.getItem("adultNames") || "None";
@@ -313,56 +314,56 @@ if (childNames.trim() !== "") {
     // -------------------------------------------------------
     // BOOKING INFORMATION (BOLD HEADER)
     // -------------------------------------------------------
-    doc.text("--------------------------------------------------------------", 14, 75);
+    doc.text("--------------------------------------------------------------", 14, 82);
 
     doc.setFont("helvetica", "bold");
     doc.setFontSize(14);
-    doc.text("[ BOOKING INFORMATION ]", 14, 80);
+    doc.text("[ BOOKING INFORMATION ]", 14, 92);
 
     doc.setFont("helvetica", "normal");
     doc.setFontSize(12);
-    doc.text(`Booking ID   : ${bookingId}`, 14, 90);
-    doc.text(`Check-in     : ${checkin}`, 14, 98);
-    doc.text(`Check-out    : ${checkout}`, 14, 106);
-    doc.text(`Status       : ${status}`, 14, 114);
+    doc.text(`Booking ID   : ${bookingId}`, 14, 100);
+    doc.text(`Check-in     : ${checkin}`, 14, 108);
+    doc.text(`Check-out    : ${checkout}`, 14, 116);
+    doc.text(`Status       : ${status}`, 14, 124);
 
     // -------------------------------------------------------
     // ROOM DETAILS (BOLD HEADER)
     // -------------------------------------------------------
     doc.setFont("helvetica", "normal");
-    doc.text("--------------------------------------------------------------", 14, 120);
+    doc.text("--------------------------------------------------------------", 14, 134);
 
     doc.setFont("helvetica", "bold");
     doc.setFontSize(14);
-    doc.text("[ ROOM DETAILS ]", 14, 130);
+    doc.text("[ ROOM DETAILS ]", 14, 144);
 
     doc.setFont("helvetica", "normal");
     doc.setFontSize(12);
-    doc.text(`Room Number : ${roomNo}`, 14, 140);
-    doc.text(`Room Type   : ${roomType}`, 14, 148);
-    doc.text(`Daily Rate  : ₹${rate}`, 14, 156);
+    doc.text(`Room Number : ${roomNo}`, 14, 152);
+    doc.text(`Room Type   : ${roomType}`, 14, 160);
+    doc.text(`Daily Rate  : ₹${rate}`, 14, 168);
 
     // -------------------------------------------------------
     // BILLING SUMMARY (BOLD HEADER)
     // -------------------------------------------------------
-    doc.text("--------------------------------------------------------------", 14, 166);
+    doc.text("--------------------------------------------------------------", 14, 176);
 
     doc.setFont("helvetica", "bold");
     doc.setFontSize(14);
-    doc.text("[ BILLING SUMMARY ]", 14, 176);
+    doc.text("[ BILLING SUMMARY ]", 14, 186);
 
     doc.setFont("helvetica", "normal");
     doc.setFontSize(12);
-    doc.text(`Total Nights : ${nights}`, 14, 186);
-    doc.text(`Total Amount : ₹${total}`, 14, 194);
+    doc.text(`Total Nights : ${nights}`, 14, 194);
+    doc.text(`Total Amount : ₹${total}`, 14, 202);
 
     // -------------------------------------------------------
     // FOOTER
     // -------------------------------------------------------
-    doc.text("--------------------------------------------------------------", 14, 204);
+    doc.text("--------------------------------------------------------------", 14, 212);
 
     doc.setFont("helvetica", "bold");
-    doc.text("Thank you for choosing HMS Deluxe!", 14, 214);
+    doc.text("Thank you for choosing HMS Deluxe!", 14, 222);
 
     // ⭐ Instead of saving locally, convert to buffer and upload to Cloudinary
     const pdfBuffer = doc.output("arraybuffer");
