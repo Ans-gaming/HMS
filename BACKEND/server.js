@@ -1098,6 +1098,67 @@ app.post("/staff-reset-password", async (req, res) => {
     }
 });
 
+app.post("/email-invoice", async (req, res) => {
+    try {
+        const { bookingId } = req.body;
+
+        // 1️⃣ Get booking
+        const booking = await Booking.findOne({ bookingId });
+        if (!booking) {
+            return res.json({ success: false, message: "Booking not found" });
+        }
+
+        // 2️⃣ Get user email
+        const user = await Registration.findOne({ username: booking.guestUsername });
+        const email = user.email;
+
+        // 3️⃣ Get invoice URL from your Cloudinary uploads table
+        const payment = await Payment.findOne({ bookingId });
+
+        if (!payment || !payment.invoiceUrl) {
+            return res.json({ success: false, message: "Invoice not found" });
+        }
+
+        const invoiceUrl = payment.invoiceUrl;
+
+        // 4️⃣ Download PDF as buffer
+        const fileRes = await fetch(invoiceUrl);
+        const pdfBuffer = await fileRes.arrayBuffer();
+
+        // 5️⃣ Send email with PDF
+        const transporter = nodemailer.createTransport({
+            service: "gmail",
+            auth: {
+                user: "botkulshiva679@gmail.com",
+                pass: "your-app-password"
+            }
+        });
+
+        await transporter.sendMail({
+            from: "HMS Deluxe <botkulshiva679@gmail.com>",
+            to: email,
+            subject: "Your Booking Cancellation Receipt",
+            html: `
+                <h2>Your booking has been cancelled</h2>
+                <p>Please find the official invoice attached.</p>
+                <p><b>Booking ID:</b> ${bookingId}</p>
+            `,
+            attachments: [
+                {
+                    filename: `${bookingId}.pdf`,
+                    content: Buffer.from(pdfBuffer),
+                }
+            ]
+        });
+
+        res.json({ success: true, message: "Email sent successfully!" });
+
+    } catch (err) {
+        console.log(err);
+        res.json({ success: false, message: err.message });
+    }
+});
+
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
     console.log("Server running on " + PORT);
