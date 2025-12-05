@@ -1134,7 +1134,7 @@ app.post("/email-invoice", async (req, res) => {
             service: "gmail",
             auth: {
                 user: "botkulshiva679@gmail.com",
-                pass: "YOUR_APP_PASSWORD"   // <--- PUT YOUR APP PASSWORD HERE
+                pass: "quhesyphnykgxglz"   // <--- PUT YOUR APP PASSWORD HERE
             }
         });
 
