@@ -1142,6 +1142,31 @@ app.post("/google-login", async (req, res) => {
     }
 });
 
+passport.use(new FacebookStrategy({
+    clientID: "720872373940923",
+    clientSecret: "c4044a6a6a9213f43e0c3a1cfb1ca280",
+    callbackURL: "https://hms1-181v.onrender.com/auth/facebook/callback",
+    profileFields: ["id", "displayName", "emails"]
+}, 
+async (accessToken, refreshToken, profile, done) => {
+
+    const email = profile.emails?.[0]?.value;
+    const name = profile.displayName;
+
+    let user = await Registration.findOne({ email });
+
+    if (!user) {
+        user = await Registration.create({
+            username: name,
+            email,
+            password: "FACEBOOK_AUTH",
+            contact: "N/A"
+        });
+    }
+
+    return done(null, user);
+}));
+
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
     console.log("Server running on " + PORT);
