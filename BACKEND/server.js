@@ -36,6 +36,10 @@ const googleClient = new OAuth2Client(
     "322209546870-bjkc4hg3blsr7mtbe47rsc10dbs33lv1.apps.googleusercontent.com"
 );
 
+const passport = require("passport");
+const FacebookStrategy = require("passport-facebook").Strategy;
+app.use(passport.initialize());
+
 // Import Models
 const Registration = require("./models/registration");
 const StaffRegister = require("./models/staffRegister");
