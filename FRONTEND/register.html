@@ -65,6 +65,8 @@
              <!-- Google Register Button -->
                 <button id="googleRegister" class="btn-user-register" style="background:#DB4437; margin-top:10px;">
                 <i class="fa-brands fa-google"></i> Register with Google</button>
+                <button onclick="facebookLogin()" class="btn-user-register" style="background:#1877F2; color:white; margin-top:10px;">
+                <i class="fa-brands fa-facebook"></i> Register with Facebook</button>
             
             <p style="margin-top: 15px;">Already have an account? <a href="login.html">Login</a></p>
         </div>
@@ -240,6 +242,11 @@ async function handleGoogleResponse(response) {
         }
     }
     </script>
-
+    
+<script>
+function facebookLogin() {
+    window.location.href = "https://hms1-181v.onrender.com/auth/facebook";
+}
+</script>
 </body>
 </html>
