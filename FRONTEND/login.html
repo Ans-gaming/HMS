@@ -38,6 +38,44 @@
     
     <footer>&copy; 2025 HMS Deluxe. All rights reserved.</footer>
 
+    <!-- Load Google SDK -->
+<script src="https://accounts.google.com/gsi/client"></script>
+
+<script>
+const GOOGLE_CLIENT_ID = "322209546870-bjkc4hg3blsr7mtbe47rsc10dbs33lv1.apps.googleusercontent.com";
+
+google.accounts.id.initialize({
+    client_id: GOOGLE_CLIENT_ID,
+    callback: handleGoogleResponse
+});
+
+document.getElementById("googleLogin").onclick = () => {
+    google.accounts.id.prompt();
+};
+
+async function handleGoogleResponse(response) {
+    try {
+        const res = await fetch("https://hms1-181v.onrender.com/google-login", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ credential: response.credential })
+        });
+
+        const data = await res.json();
+
+        if (data.success) {
+            localStorage.setItem("guestUsername", data.username);
+            alert("Login Successful!");
+            window.location.href = "userhome.html";
+        } else {
+            alert("Google Login Failed");
+        }
+    } catch (err) {
+        alert("Server Error");
+    }
+}
+</script>
+
     <script>
         // FULL NAME: Allow only A-Z and a-z (case-sensitive)
         document.querySelector("input[name='username']").addEventListener("keypress", function (e) {
@@ -98,42 +136,6 @@
           }
         }
     </script>
-<script src="https://accounts.google.com/gsi/client" async defer></script>
-
-<script>
-const GOOGLE_CLIENT_ID = "322209546870-bjkc4hg3blsr7mtbe47rsc10dbs33lv1.apps.googleusercontent.com";
-
-google.accounts.id.initialize({
-    client_id: GOOGLE_CLIENT_ID,
-    callback: handleGoogleResponse
-});
-
-document.getElementById("googleLogin").onclick = () => {
-    google.accounts.id.prompt();
-};
-
-async function handleGoogleResponse(response) {
-    try {
-        const res = await fetch("https://hms1-181v.onrender.com/google-login", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ credential: response.credential })
-        });
-
-        const data = await res.json();
-
-        if (data.success) {
-            localStorage.setItem("guestUsername", data.username);
-            alert("Login Successful!");
-            window.location.href = "userhome.html";
-        } else {
-            alert("Google Login Failed");
-        }
-    } catch (err) {
-        alert("Server Error");
-    }
-}
-</script>
 
 </body>
 </html>
