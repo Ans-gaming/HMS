@@ -228,6 +228,15 @@ form select:focus {
   box-shadow: 0 10px 26px rgba(76,175,80,0.45);
 }
 
+/* ⭐ Add space between adult inputs and child text */
+#adultContainer {
+  margin-bottom: 18px;   /* Increase spacing below adult fields */
+}
+
+#guestDetailsSection h4 {
+  margin-top: 12px;      /* Extra gap above "Children (Optional)" */
+}
+
 /* ----------------------------------------------------
    FOOTER
 ---------------------------------------------------- */

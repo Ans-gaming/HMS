@@ -104,7 +104,7 @@
     async function checkBookingStatus() {
       const username = localStorage.getItem("guestUsername");
 
-      const res = await fetch(`http://localhost:5000/check-active-booking?username=${username}`);
+      const res = await fetch(`https://hms1-181v.onrender.com/check-active-booking?username=${username}`);
       const data = await res.json();
 
       // Your Book New Stay button
@@ -127,7 +127,7 @@
     async function disableButtonsIfNoBooking() {
       const username = localStorage.getItem("guestUsername");
 
-      const res = await fetch(`http://localhost:5000/check-active-booking?username=${username}`);
+      const res = await fetch(`https://hms1-181v.onrender.com/check-active-booking?username=${username}`);
       const data = await res.json();
 
       // Select buttons
@@ -159,11 +159,12 @@
 async function loadUserBookingDetails() {
     const username = localStorage.getItem("guestUsername");
 
-    const res = await fetch(`http://localhost:5000/get-booking-details?username=${username}`);
-    const data = await res.json();
+    // ⭐ FIRST check if user has any active booking
+    const activeRes = await fetch(`https://hms1-181v.onrender.com/check-active-booking?username=${username}`);
+    const activeData = await activeRes.json();
 
-    if (!data.success) {
-        // no booking → clear cards
+    if (!activeData.active) {
+        // No active booking → clear cards
         document.getElementById("res-bookingId").textContent = "--";
         document.getElementById("res-checkin").textContent = "--";
         document.getElementById("res-checkout").textContent = "--";
@@ -172,11 +173,17 @@ async function loadUserBookingDetails() {
         document.getElementById("room-number").textContent = "--";
         document.getElementById("room-type").textContent = "--";
         document.getElementById("room-rate").textContent = "--";
+        document.getElementById("wifi-password").textContent = "--";
 
         document.getElementById("bill-nights").textContent = "--";
         document.getElementById("bill-total").textContent = "--";
+
         return;
     }
+
+    // ⭐ User HAS an active booking → fetch it
+    const res = await fetch(`https://hms1-181v.onrender.com/get-booking-details?username=${username}`);
+    const data = await res.json();
 
     const b = data.booking;
 
@@ -187,33 +194,62 @@ async function loadUserBookingDetails() {
     document.getElementById("res-status").textContent = "Active & Confirmed";
 
     // Room Details
-    // Room Details
     document.getElementById("room-number").textContent = b.roomNumber;
     document.getElementById("room-type").textContent = `${b.roomType} (${b.acType})`;
     document.getElementById("room-rate").textContent = b.rate;
 
-    // WiFi PASSWORD generation
-    let wifiPwd = "HMS";
-
-    if (b.acType === "AC") {
-      wifiPwd += "AC";
-    } else {
-      wifiPwd += "NONAC";
-    }
-
-    wifiPwd += b.roomNumber; // add room number
-
+    // WiFi password logic
+    let wifiPwd = "HMS" + (b.acType === "AC" ? "AC" : "NONAC") + b.roomNumber;
     document.getElementById("wifi-password").textContent = wifiPwd;
 
-    // Billing Summary
+    // Billing
     document.getElementById("bill-nights").textContent = b.nights;
     document.getElementById("bill-total").textContent = b.total;
 }
 
 document.addEventListener("DOMContentLoaded", loadUserBookingDetails);
-</script>
+    </script>
 
-<script>
+    <!-- ⭐ NEW: helper to upload invoice PDF to Cloudinary via backend -->
+    <script>
+    async function uploadInvoiceToCloudinary(pdfBuffer, bookingId) {
+    const pdfBase64 = btoa(
+        new Uint8Array(pdfBuffer)
+            .reduce((data, byte) => data + String.fromCharCode(byte), "")
+    );
+
+    const response = await fetch("https://hms1-181v.onrender.com/generate-invoice", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            bookingId,
+            pdfBase64
+        })
+    });
+
+    const result = await response.json();
+
+    if (result.success) {
+
+        // ⭐ DIRECT DOWNLOAD (NO CLOUDINARY OPEN)
+        const fileUrl = result.invoiceUrl;
+
+        const fileRes = await fetch(fileUrl);
+        const blob = await fileRes.blob();
+
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.download = `${bookingId}.pdf`;
+        link.click();
+
+    } else {
+        alert("Invoice upload failed: " + (result.message || ""));
+    }
+}
+
+    </script>
+
+    <script>
 async function downloadInvoice() {
 
     const { jsPDF } = window.jspdf;
@@ -259,68 +295,84 @@ async function downloadInvoice() {
     doc.setFontSize(12);
     doc.text(`Guest Name     : ${username}`, 14, 48);
     doc.text(`WiFi Password  : ${wifi}`, 14, 56);
+    
+    // ⭐ Retrieve combined guest names
+// ⭐ Retrieve separate adult & child names
+let adultNames = localStorage.getItem("adultNames") || "None";
+let childNames = localStorage.getItem("childNames") || "";
+
+// Adults come first
+doc.text(`Adults         : ${adultNames}`, 14, 64);
+
+// Add children ONLY if they exist
+if (childNames.trim() !== "") {
+    doc.text(`Children       : ${childNames}`, 14, 72);
+} else {
+    doc.text(`Children       : None`, 14, 72);
+}
 
     // -------------------------------------------------------
     // BOOKING INFORMATION (BOLD HEADER)
     // -------------------------------------------------------
-    doc.text("--------------------------------------------------------------", 14, 66);
+    doc.text("--------------------------------------------------------------", 14, 82);
 
     doc.setFont("helvetica", "bold");
     doc.setFontSize(14);
-    doc.text("[ BOOKING INFORMATION ]", 14, 76);
+    doc.text("[ BOOKING INFORMATION ]", 14, 92);
 
     doc.setFont("helvetica", "normal");
     doc.setFontSize(12);
-    doc.text(`Booking ID   : ${bookingId}`, 14, 86);
-    doc.text(`Check-in     : ${checkin}`, 14, 94);
-    doc.text(`Check-out    : ${checkout}`, 14, 102);
-    doc.text(`Status       : ${status}`, 14, 110);
+    doc.text(`Booking ID   : ${bookingId}`, 14, 100);
+    doc.text(`Check-in     : ${checkin}`, 14, 108);
+    doc.text(`Check-out    : ${checkout}`, 14, 116);
+    doc.text(`Status       : ${status}`, 14, 124);
 
     // -------------------------------------------------------
     // ROOM DETAILS (BOLD HEADER)
     // -------------------------------------------------------
     doc.setFont("helvetica", "normal");
-    doc.text("--------------------------------------------------------------", 14, 120);
+    doc.text("--------------------------------------------------------------", 14, 134);
 
     doc.setFont("helvetica", "bold");
     doc.setFontSize(14);
-    doc.text("[ ROOM DETAILS ]", 14, 130);
+    doc.text("[ ROOM DETAILS ]", 14, 144);
 
     doc.setFont("helvetica", "normal");
     doc.setFontSize(12);
-    doc.text(`Room Number : ${roomNo}`, 14, 140);
-    doc.text(`Room Type   : ${roomType}`, 14, 148);
-    doc.text(`Daily Rate  : ₹${rate}`, 14, 156);
+    doc.text(`Room Number : ${roomNo}`, 14, 152);
+    doc.text(`Room Type   : ${roomType}`, 14, 160);
+    doc.text(`Daily Rate  : ₹${rate}`, 14, 168);
 
     // -------------------------------------------------------
     // BILLING SUMMARY (BOLD HEADER)
     // -------------------------------------------------------
-    doc.text("--------------------------------------------------------------", 14, 166);
+    doc.text("--------------------------------------------------------------", 14, 176);
 
     doc.setFont("helvetica", "bold");
     doc.setFontSize(14);
-    doc.text("[ BILLING SUMMARY ]", 14, 176);
+    doc.text("[ BILLING SUMMARY ]", 14, 186);
 
     doc.setFont("helvetica", "normal");
     doc.setFontSize(12);
-    doc.text(`Total Nights : ${nights}`, 14, 186);
-    doc.text(`Total Amount : ₹${total}`, 14, 194);
+    doc.text(`Total Nights : ${nights}`, 14, 194);
+    doc.text(`Total Amount : ₹${total}`, 14, 202);
 
     // -------------------------------------------------------
     // FOOTER
     // -------------------------------------------------------
-    doc.text("--------------------------------------------------------------", 14, 204);
+    doc.text("--------------------------------------------------------------", 14, 212);
 
     doc.setFont("helvetica", "bold");
-    doc.text("Thank you for choosing HMS Deluxe!", 14, 214);
+    doc.text("Thank you for choosing HMS Deluxe!", 14, 222);
 
-    // SAVE FILE
-    doc.save(`Invoice_${bookingId}.pdf`);
+    // ⭐ Instead of saving locally, convert to buffer and upload to Cloudinary
+    const pdfBuffer = doc.output("arraybuffer");
+    await uploadInvoiceToCloudinary(pdfBuffer, bookingId);
 }
-</script>
+    </script>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
 
 </body>
 </html>

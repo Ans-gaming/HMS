@@ -174,7 +174,7 @@ function showSection(id) {
 <script>
 async function loadBookings() {
     try {
-        const res = await fetch("http://localhost:5000/all-bookings");
+        const res = await fetch("https://hms1-181v.onrender.com/all-bookings");
         const data = await res.json();
 
         if (!data.success) return;
@@ -204,7 +204,7 @@ async function loadBookings() {
 <script>
 async function loadCancelRequests() {
     try {
-        const res = await fetch("http://localhost:5000/all-cancel-requests");
+        const res = await fetch("https://hms1-181v.onrender.com/all-cancel-requests");
         const data = await res.json();
 
         if (!data.success) return;
@@ -232,7 +232,7 @@ async function loadCancelRequests() {
 }
 
 async function deleteCancel(id) {
-    await fetch("http://localhost:5000/delete-cancel-request", {
+    await fetch("https://hms1-181v.onrender.com/delete-cancel-request", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id })
@@ -251,7 +251,7 @@ document.addEventListener("DOMContentLoaded", loadBookings);
 <script>
 async function loadAvailableRooms() {
     try {
-        const res = await fetch("http://localhost:5000/all-rooms");
+        const res = await fetch("https://hms1-181v.onrender.com/all-rooms");
         const data = await res.json();
 
         if (!data.success) return;

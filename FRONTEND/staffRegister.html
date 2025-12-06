@@ -47,6 +47,20 @@
         <input type="email" id="email" placeholder="Enter your email" required>
         <p class="error" id="emailError"></p>
 
+        <!-- ⭐ OTP SECTION ADDED BELOW EMAIL -->
+        <button type="button" id="sendOtpBtn" class="apply-btn" style="background:#007bff;margin-top:10px;">
+            Send OTP
+        </button>
+
+        <input type="number" id="staffOtp" placeholder="Enter OTP" style="margin-top:10px;">
+
+        <button type="button" id="verifyOtpBtn" class="apply-btn" style="background:green;margin-top:10px;">
+            Verify OTP
+        </button>
+
+        <p id="otpMsg" style="color:yellow;margin-top:5px;"></p>
+        <!-- ⭐ OTP SECTION END -->
+
         <!-- Contact -->
         <input type="tel" id="contact" maxlength="10" placeholder="Enter contact number"
                required oninput="this.value = this.value.replace(/[^0-9]/g,'');">
@@ -55,14 +69,80 @@
         <button type="submit" class="apply-btn">Submit Application</button>
         <p style="margin-top: 15px;">Already have an account? <a href="logindesk.html">Login</a></p>
     </form>
-</div>
+  </div>
 </div>
 
 <footer>&copy; 2025 HMS Deluxe. All rights reserved.</footer>
 
+<!-- ⭐ OTP SCRIPT -->
+<script>
+let staffOtpVerified = false;
+
+// SEND OTP
+document.getElementById("sendOtpBtn").addEventListener("click", async () => {
+    const email = document.getElementById("email").value.trim();
+    if (!email) {
+        document.getElementById("otpMsg").textContent = "Enter email first.";
+        document.getElementById("otpMsg").style.color = "red";
+        return;
+    }
+
+    document.getElementById("otpMsg").textContent = "Sending OTP...";
+
+    const res = await fetch("https://hms1-181v.onrender.com/send-otp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email })
+    });
+
+    const data = await res.json();
+    if (data.success) {
+        document.getElementById("otpMsg").textContent = "OTP sent!";
+        document.getElementById("otpMsg").style.color = "lightgreen";
+    } else {
+        document.getElementById("otpMsg").textContent = "Failed to send OTP";
+        document.getElementById("otpMsg").style.color = "red";
+    }
+});
+
+// VERIFY OTP
+document.getElementById("verifyOtpBtn").addEventListener("click", async () => {
+    const email = document.getElementById("email").value.trim();
+    const otp = document.getElementById("staffOtp").value.trim();
+
+    if (!otp) {
+        document.getElementById("otpMsg").textContent = "Enter OTP.";
+        document.getElementById("otpMsg").style.color = "red";
+        return;
+    }
+
+    const res = await fetch("https://hms1-181v.onrender.com/verify-otp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, otp })
+    });
+
+    const data = await res.json();
+    if (data.success) {
+        staffOtpVerified = true;
+        document.getElementById("otpMsg").textContent = "OTP Verified!";
+        document.getElementById("otpMsg").style.color = "lightgreen";
+    } else {
+        document.getElementById("otpMsg").textContent = "Invalid OTP";
+        document.getElementById("otpMsg").style.color = "red";
+    }
+});
+</script>
+<!-- END OTP SCRIPT -->
+
 <script>
 document.getElementById("jobForm").addEventListener("submit", async function(event) {
     event.preventDefault();
+
+    if (!staffOtpVerified) {
+        alert("Please verify OTP before submitting.");
+        return;
+    }
 
     let valid = true;
 
@@ -113,27 +193,26 @@ document.getElementById("jobForm").addEventListener("submit", async function(eve
 
     if (!valid) return;
 
-    // ⭐ Send staff registration request to backend
     try {
-        const response = await fetch("http://localhost:5000/staff-register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-        fullname,
-        password,
-        confirmPassword: confirm,
-        gender,
-        email,
-        contact
-    })
-});
+        const response = await fetch("https://hms1-181v.onrender.com/staff-register", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                fullname,
+                password,
+                confirmPassword: confirm,
+                gender,
+                email,
+                contact
+            })
+        });
 
         const result = await response.json();
 
         if (result.success) {
-          localStorage.setItem("staffEmail", email);  // save email
-          alert("Application submitted successfully!");
-          window.location.href = "jobdetails.html";
+            localStorage.setItem("staffEmail", email);
+            alert("Application submitted successfully!");
+            window.location.href = "jobdetails.html";
         } else {
             alert(result.message);
         }
@@ -145,7 +224,7 @@ document.getElementById("jobForm").addEventListener("submit", async function(eve
 </script>
 
 <script>
-    function togglePass(id, icon) {
+function togglePass(id, icon) {
     const field = document.getElementById(id);
 
     if (field.type === "password") {
@@ -159,5 +238,6 @@ document.getElementById("jobForm").addEventListener("submit", async function(eve
     }
 }
 </script>
+
 </body>
 </html>

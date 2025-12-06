@@ -3,8 +3,19 @@ const mongoose = require("mongoose");
 const cors = require("cors");
 
 const app = express();
-app.use(cors());
+
+// ⭐ FINAL WORKING CORS FIX
+
+app.use(cors({
+    origin: [
+        "https://hms-xna6.onrender.com"
+    ],
+    methods: ["GET", "POST"],
+    allowedHeaders: ["Content-Type"]
+}));
+
 app.use(express.json());
+
 app.use("/uploads", express.static("uploads"));
 
 const cloudinary = require("cloudinary").v2;
@@ -15,7 +26,17 @@ cloudinary.config({
     api_secret: "i0ziehkakuCQM63CW-pytb-BlJI"
 });
 
-// Import Registration model
+const nodemailer = require("nodemailer");
+
+// Temporary storage for OTP
+let otpStore = {};
+
+const { OAuth2Client } = require("google-auth-library");
+const googleClient = new OAuth2Client(
+    "322209546870-bjkc4hg3blsr7mtbe47rsc10dbs33lv1.apps.googleusercontent.com"
+);
+
+// Import Models
 const Registration = require("./models/registration");
 const StaffRegister = require("./models/staffRegister");
 const JobDetails = require("./models/jobdetails");
@@ -23,7 +44,8 @@ const Visitors = require("./models/visitors");
 const Room = require("./models/rooms");
 const Booking = require("./models/booking");
 const Payment = require("./models/payment");
-const CancelRequests = require("./models/cancelRequests");  // add at top
+const CancelRequests = require("./models/cancelRequests");
+
 
 async function logVisitor(username, userType, status) {
     await Visitors.create({
@@ -56,6 +78,59 @@ const storage = multer.diskStorage({
 });
 
 const upload = multer({ storage: storage });
+
+app.post("/send-otp", async (req, res) => {
+    try {
+        const { email } = req.body;
+        console.log("EMAIL FROM FRONTEND:", email);
+
+        const otp = Math.floor(100000 + Math.random() * 900000);
+        otpStore[email] = otp;
+
+        const brevoRes = await fetch("https://api.brevo.com/v3/smtp/email", {
+            method: "POST",
+            headers: {
+                "accept": "application/json",
+                "api-key": process.env.BREVO_API_KEY,
+                "content-type": "application/json"
+            },
+            body: JSON.stringify({
+                sender: { email: "botkulshiva679@gmail.com", name: "HMS Deluxe" },
+                to: [{ email: email }],
+                subject: "Your HMS Deluxe OTP Verification",
+                htmlContent: `
+                    <h2>Your OTP is: <b>${otp}</b></h2>
+                    <p>This OTP will expire in 5 minutes.</p>
+                `
+            })
+        });
+
+        const data = await brevoRes.json();
+        console.log("BREVO API RESPONSE:", data);
+
+        if (brevoRes.ok) {
+            return res.json({ success: true, message: "OTP sent!" });
+        } else {
+            return res.json({ success: false, message: "Brevo API error", data });
+        }
+
+    } catch (err) {
+        console.log("BREVO API ERROR:", err);
+        res.json({ success: false, message: "Failed to send OTP" });
+    }
+});
+    
+// ⭐ VERIFY OTP API
+app.post("/verify-otp", (req, res) => {
+    const { email, otp } = req.body;
+
+    if (otpStore[email] && otpStore[email] == otp) {
+        delete otpStore[email];
+        return res.json({ success: true, message: "OTP Verified!" });
+    }
+
+    res.json({ success: false, message: "Invalid OTP" });
+});
 
 // ✅ REGISTER API (Guest)
 app.post("/register", async (req, res) => {
@@ -863,6 +938,207 @@ app.get("/get-booking-details", async (req, res) => {
     }
 });
 
-app.listen(5000, () => {
-    console.log("Server running on 5000");
+const fs = require("fs");
+
+// ⭐ GENERATE + UPLOAD INVOICE TO CLOUDINARY (Option 3)
+app.post("/generate-invoice", async (req, res) => {
+    try {
+        const { bookingId, pdfBase64 } = req.body;
+
+        // Save PDF temporarily
+        const pdfPath = `Invoice_${bookingId}.pdf`;
+        const pdfBuffer = Buffer.from(pdfBase64, "base64");
+        fs.writeFileSync(pdfPath, pdfBuffer);
+
+        // Upload to Cloudinary
+        const upload = await cloudinary.uploader.upload(pdfPath, {
+            folder: "hms_invoices",
+            resource_type: "raw",
+            format: "pdf"
+        });
+
+        // Delete local file
+        fs.unlinkSync(pdfPath);
+
+        return res.json({
+            success: true,
+            invoiceUrl: upload.secure_url
+        });
+
+    } catch (err) {
+        console.log(err);
+        res.json({ success: false, message: err.message });
+    }
+});
+
+// ⭐ FORGOT PASSWORD — SEND OTP (username or email)
+app.post("/forgot-send-otp", async (req, res) => {
+    try {
+        const { userInput } = req.body;
+
+        // Find user by username OR email
+        const user =
+            await Registration.findOne({ username: userInput }) ||
+            await Registration.findOne({ email: userInput });
+
+        if (!user) {
+            return res.json({ success: false, message: "User not found" });
+        }
+
+        const email = user.email;
+
+        // Generate OTP
+        const otp = Math.floor(100000 + Math.random() * 900000);
+        otpStore[email] = otp;
+
+        // Send OTP with Brevo API
+        const brevoRes = await fetch("https://api.brevo.com/v3/smtp/email", {
+            method: "POST",
+            headers: {
+                "accept": "application/json",
+                "api-key": process.env.BREVO_API_KEY,
+                "content-type": "application/json"
+            },
+            body: JSON.stringify({
+                sender: { email: "botkulshiva679@gmail.com", name: "HMS Deluxe" },
+                to: [{ email }],
+                subject: "HMS Password Reset OTP",
+                htmlContent: `<h2>Your Password Reset OTP is <b>${otp}</b></h2>`
+            })
+        });
+
+        return res.json({ success: true, message: "OTP sent!", email });
+
+    } catch (err) {
+        res.json({ success: false, message: "Error sending OTP" });
+    }
+});
+
+
+// ⭐ VERIFY FORGOT PASSWORD OTP
+app.post("/forgot-verify-otp", (req, res) => {
+    const { email, otp } = req.body;
+
+    if (otpStore[email] && otpStore[email] == otp) {
+        delete otpStore[email];
+        return res.json({ success: true, message: "OTP Verified!" });
+    }
+
+    res.json({ success: false, message: "Invalid OTP" });
+});
+
+
+// ⭐ RESET PASSWORD
+app.post("/reset-password", async (req, res) => {
+    try {
+        const { email, password } = req.body;
+
+        await Registration.updateOne({ email }, { password });
+
+        res.json({ success: true, message: "Password updated!" });
+
+    } catch (err) {
+        res.json({ success: false, message: "Failed to reset password" });
+    }
+});
+
+app.post("/staff-forgot-send-otp", async (req, res) => {
+    try {
+        const { staffInput } = req.body;
+
+        const staff =
+            await StaffRegister.findOne({ fullname: staffInput }) ||
+            await StaffRegister.findOne({ email: staffInput });
+
+        if (!staff) {
+            return res.json({ success: false, message: "Staff not found" });
+        }
+
+        const email = staff.email;
+
+        const otp = Math.floor(100000 + Math.random() * 900000);
+        otpStore[email] = otp;
+
+        // Send OTP
+        await fetch("https://api.brevo.com/v3/smtp/email", {
+            method: "POST",
+            headers: {
+                "accept": "application/json",
+                "api-key": process.env.BREVO_API_KEY,
+                "content-type": "application/json"
+            },
+            body: JSON.stringify({
+                sender: { email: "botkulshiva679@gmail.com", name: "HMS Deluxe" },
+                to: [{ email }],
+                subject: "Staff Password Reset OTP",
+                htmlContent: `<h2>Your OTP is <b>${otp}</b></h2>`
+            })
+        });
+
+        res.json({ success: true, message: "OTP sent!", email });
+
+    } catch (err) {
+        res.json({ success: false, message: "Error sending OTP" });
+    }
+});
+
+app.post("/staff-forgot-verify-otp", (req, res) => {
+    const { email, otp } = req.body;
+
+    if (otpStore[email] && otpStore[email] == otp) {
+        delete otpStore[email];
+        return res.json({ success: true, message: "OTP Verified!" });
+    }
+
+    return res.json({ success: false, message: "Invalid OTP" });
+});
+
+app.post("/staff-reset-password", async (req, res) => {
+    try {
+        const { email, password } = req.body;
+
+        await StaffRegister.updateOne({ email }, { password });
+
+        res.json({ success: true, message: "Staff password updated!" });
+
+    } catch (err) {
+        res.json({ success: false, message: "Failed to reset password" });
+    }
+});
+
+app.post("/google-login", async (req, res) => {
+    try {
+        const { credential } = req.body;
+
+        const ticket = await googleClient.verifyIdToken({
+            idToken: credential,
+            audience: "322209546870-bjkc4hg3blsr7mtbe47rsc10dbs33lv1.apps.googleusercontent.com"
+        });
+
+        const payload = ticket.getPayload();
+        const email = payload.email;
+        const name = payload.name;
+
+        let user = await Registration.findOne({ email });
+
+        if (!user) {
+            user = await Registration.create({
+                username: name,
+                email,
+                password: "GOOGLE_AUTH",
+                contact: "N/A"
+            });
+        }
+
+        res.json({ success: true, username: user.username });
+
+    } catch (error) {
+        console.error(error);
+        res.json({ success: false, message: "Google login failed" });
+    }
+});
+
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => {
+    console.log("Server running on " + PORT);
 });

@@ -4,7 +4,7 @@ body {
     margin: 0;
     padding: 0;
     /* ✅ BACKGROUND IMAGE ADDED */
-    background: url("C:\\Hotel MS\\images\\admin.png") no-repeat center center fixed;
+    background: url("images/admin.png") no-repeat center center fixed;
     background-size: 120% 650px;
     color: #333;
     line-height: 1.6;

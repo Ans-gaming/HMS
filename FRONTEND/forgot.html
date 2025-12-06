@@ -4,31 +4,151 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Forgot Password - HMS Deluxe</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link rel="stylesheet" href="forgot.css"> 
 </head>
 <body>
     <header><div class="logo">🏨 HMS Deluxe</div></header>
 
     <div class="container" style="justify-content: center;">
-        <!-- The action-hub class is used for the centralized form card -->
         <div class="action-hub" style="width: 400px; padding: 40px;">
             <h3>Password Recovery</h3>
-            <p style="margin-bottom: 20px; color: #666;">Enter the email address associated with your account to receive a password reset link.</p>
+            <p style="margin-bottom: 20px; color: #666;">Enter your username or email to reset password.</p>
             
-            <form action="#" method="POST">
-                <!-- Uses the existing input style from styles.css -->
-                <input type="email" name="recovery_email" placeholder="Your Registered Email Address" required>
-                
-                <!-- Uses the existing user login button style -->
-                <button type="submit" class="btn-user-login" style="background-color: #ff9800;">Send Reset Link</button>
-            </form>
+            <input type="text" id="userInput" placeholder="Username or Email" required>
+
+            <button class="btn-user-login" style="background:#007bff;" onclick="sendForgotOtp()">
+                Send OTP
+            </button>
+
+            <input type="number" id="otp" placeholder="Enter OTP" style="margin-top:10px;">
+
+            <button class="btn-user-login" style="background:green;" onclick="verifyForgotOtp()">
+                Verify OTP
+            </button>
+
+            <p id="otpMsg" style="color:yellow;margin-top:5px;"></p>
+
+            <!-- Reset Password Section (visible after OTP verified) -->
+            <div id="resetSection" style="display:none;margin-top:20px;">
+                <div class="password-container" style="margin-top:10px;">
+                  <input type="password" id="newPass" placeholder="New Password">
+                  <i class="fa-solid fa-eye togglePassword" onclick="toggleStaffPass('newPass', this)"></i>
+                </div>
+
+                <div class="password-container" style="margin-top:10px;">
+                  <input type="password" id="confirmPass" placeholder="Confirm Password">
+                  <i class="fa-solid fa-eye togglePassword" onclick="toggleStaffPass('confirmPass', this)"></i>
+                </div>
+
+                <button class="btn-user-login" style="background:#ff9800;" onclick="resetPassword()">
+                    Reset Password
+                </button>
+            </div>
 
             <p style="margin-top: 15px;">
                 Remember your password? <a href="login.html">Return to Login</a>
             </p>
+
         </div>
     </div>
     
     <footer>&copy; 2025 HMS Deluxe. All rights reserved.</footer>
+
+<script>
+let verified = false;
+let resetEmail = null;
+
+// ⭐ SEND FORGOT PASSWORD OTP
+async function sendForgotOtp() {
+    const userInput = document.getElementById("userInput").value.trim();
+
+    const res = await fetch("https://hms1-181v.onrender.com/forgot-send-otp", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({ userInput })
+    });
+
+    const data = await res.json();
+    document.getElementById("otpMsg").innerText = data.message;
+
+    if (data.success) {
+        resetEmail = data.email; // store user's email for reset
+        document.getElementById("otpMsg").style.color = "lightgreen";
+    } else {
+        document.getElementById("otpMsg").style.color = "red";
+    }
+}
+
+// ⭐ VERIFY OTP
+async function verifyForgotOtp() {
+    const otp = document.getElementById("otp").value.trim();
+
+    const res = await fetch("https://hms1-181v.onrender.com/forgot-verify-otp", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({ email: resetEmail, otp })
+    });
+
+    const data = await res.json();
+    document.getElementById("otpMsg").innerText = data.message;
+
+    if (data.success) {
+        verified = true;
+        document.getElementById("otpMsg").style.color = "lightgreen";
+
+        // Show password reset area
+        document.getElementById("resetSection").style.display = "block";
+    } else {
+        document.getElementById("otpMsg").style.color = "red";
+    }
+}
+
+// ⭐ RESET PASSWORD
+async function resetPassword() {
+    if (!verified) {
+        alert("Verify OTP first!");
+        return;
+    }
+
+    const newPass = document.getElementById("newPass").value;
+    const confirm = document.getElementById("confirmPass").value;
+
+    if (newPass !== confirm) {
+        alert("Passwords do not match!");
+        return;
+    }
+
+    const res = await fetch("https://hms1-181v.onrender.com/reset-password", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({ email: resetEmail, password: newPass })
+    });
+
+    const data = await res.json();
+
+    if (data.success) {
+        alert("Password reset successful!");
+        window.location.href = "login.html";
+    } else {
+        alert(data.message);
+    }
+}
+</script>
+<script>
+function toggleStaffPass(id, icon) {
+    const field = document.getElementById(id);
+
+    if (field.type === "password") {
+        field.type = "text";
+        icon.classList.remove("fa-eye");
+        icon.classList.add("fa-eye-slash");
+    } else {
+        field.type = "password";
+        icon.classList.remove("fa-eye-slash");
+        icon.classList.add("fa-eye");
+    }
+}
+</script>
 </body>
 </html>

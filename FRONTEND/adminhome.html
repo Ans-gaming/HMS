@@ -288,7 +288,7 @@
     <script>
         async function loadGuestStats() {
             try {
-                const response = await fetch("http://localhost:5000/guest-stats");
+                const response = await fetch("https://hms1-181v.onrender.com/guest-stats");
                 const data = await response.json();
 
                 if (data.success) {
@@ -305,7 +305,7 @@
     <script>
         async function loadStaffStats() {
             try {
-                const response = await fetch("http://localhost:5000/staff-stats");
+                const response = await fetch("https://hms1-181v.onrender.com/staff-stats");
                 const data = await response.json();
 
                 if (data.success) {
@@ -322,7 +322,7 @@
     <script>
         async function loadStaffTable() {
             try {
-                const res = await fetch("http://localhost:5000/all-jobdetails");
+                const res = await fetch("https://hms1-181v.onrender.com/all-jobdetails");
                 const data = await res.json();
 
                 if (!data.success) return;
@@ -369,7 +369,7 @@
         }
 
         async function updateStatus(id, status) {
-            const res = await fetch("http://localhost:5000/update-status", {
+            const res = await fetch("https://hms1-181v.onrender.com/update-status", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ id, status })
@@ -387,7 +387,7 @@
       async function deleteStaff(id) {
         if (!confirm("Are you sure you want to delete this staff permanently?")) return;
 
-        const res = await fetch("http://localhost:5000/delete-staff", {
+        const res = await fetch("https://hms1-181v.onrender.com/delete-staff", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ id })
@@ -407,7 +407,7 @@
     <script>
         async function loadVisitors() {
             try {
-                const res = await fetch("http://localhost:5000/visitor-stats");
+                const res = await fetch("https://hms1-181v.onrender.com/visitor-stats");
                 const data = await res.json();
 
                 if (!data.success) return;
@@ -448,7 +448,7 @@
       async function deleteAllVisitors() {
         if (!confirm("Are you sure you want to delete ALL visitor history?")) return;
 
-        const res = await fetch("http://localhost:5000/delete-all-visitors", {
+        const res = await fetch("https://hms1-181v.onrender.com/delete-all-visitors", {
           method: "POST"
         });
 
@@ -467,7 +467,7 @@
 
 <script>
 async function loadRoomStats() {
-  const res = await fetch("http://localhost:5000/all-rooms");
+  const res = await fetch("https://hms1-181v.onrender.com/all-rooms");
   const data = await res.json();
 
   if (!data.success) return;
@@ -608,7 +608,7 @@ function deleteAllReviews() {
 let allPayments = [];
 
 async function loadPayments() {
-    const res = await fetch("http://localhost:5000/all-payments");
+    const res = await fetch("https://hms1-181v.onrender.com/all-payments");
     const data = await res.json();
 
     if (!data.success) return;

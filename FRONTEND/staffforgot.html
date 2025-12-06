@@ -3,32 +3,146 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Forgot Password - HMS Deluxe</title>
-    <link rel="stylesheet" href="forgot.css"> 
+    <title>Staff Forgot Password - HMS Deluxe</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" href="forgot.css">
 </head>
 <body>
-    <header><div class="logo">🏨 HMS Deluxe</div></header>
 
-    <div class="container" style="justify-content: center;">
-        <!-- The action-hub class is used for the centralized form card -->
-        <div class="action-hub" style="width: 400px; padding: 40px;">
-            <h3>Password Recovery</h3>
-            <p style="margin-bottom: 20px; color: #666;">Enter the email address associated with your account to receive a password reset link.</p>
-            
-            <form action="#" method="POST">
-                <!-- Uses the existing input style from styles.css -->
-                <input type="email" name="recovery_email" placeholder="Your Registered Email Address" required>
-                
-                <!-- Uses the existing user login button style -->
-                <button type="submit" class="btn-user-login" style="background-color: #ff9800;">Send Reset Link</button>
-            </form>
+<header>
+    <div class="logo">🏨 HMS Deluxe</div>
+</header>
 
-            <p style="margin-top: 15px;">
-                Remember your password? <a href="logindesk.html">Return to Login</a>
-            </p>
+<div class="container" style="justify-content:center;">
+    <div class="action-hub" style="width:400px;padding:40px;">
+        <h3>Staff Password Recovery</h3>
+        <p style="color:#666;margin-bottom:15px;">Enter your fullname or email</p>
+
+        <input type="text" id="staffInput" placeholder="Fullname or Email">
+
+        <button onclick="sendStaffOtp()" class="btn-user-login" style="background:#007bff;">Send OTP</button>
+
+        <input type="number" id="staffOtp" placeholder="Enter OTP" style="margin-top:10px;">
+
+        <button onclick="verifyStaffOtp()" class="btn-user-login" style="background:green;">Verify OTP</button>
+
+        <p id="otpMsg" style="color:yellow;margin-top:5px;"></p>
+
+        <!-- Reset Password -->
+        <div id="resetSection" style="display:none;margin-top:20px;">
+            <div class="password-container" style="margin-top:10px;">
+              <input type="password" id="newPass" placeholder="New Password">
+              <i class="fa-solid fa-eye togglePassword" onclick="toggleStaffPass('newPass', this)"></i>
+            </div>
+
+            <div class="password-container" style="margin-top:10px;">
+              <input type="password" id="confirmPass" placeholder="Confirm Password">
+              <i class="fa-solid fa-eye togglePassword" onclick="toggleStaffPass('confirmPass', this)"></i>
+            </div>
+
+            <button onclick="resetStaffPassword()" class="btn-user-login" style="background:#ff9800;">Reset Password</button>
         </div>
+
+        <p style="margin-top:15px;">Return to <a href="logindesk.html">Staff Login</a></p>
     </div>
-    
-    <footer>&copy; 2025 HMS Deluxe. All rights reserved.</footer>
+</div>
+
+<footer>&copy; 2025 HMS Deluxe. All rights reserved.</footer>
+
+<script>
+let staffEmail = null;
+let staffOtpVerified = false;
+
+// SEND STAFF OTP
+async function sendStaffOtp() {
+    const staffInput = document.getElementById("staffInput").value.trim();
+
+    const res = await fetch("https://hms1-181v.onrender.com/staff-forgot-send-otp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ staffInput })
+    });
+
+    const data = await res.json();
+    document.getElementById("otpMsg").innerText = data.message;
+
+    if (data.success) {
+        staffEmail = data.email;
+        document.getElementById("otpMsg").style.color = "lightgreen";
+    } else {
+        document.getElementById("otpMsg").style.color = "red";
+    }
+}
+
+// VERIFY STAFF OTP
+async function verifyStaffOtp() {
+    const otp = document.getElementById("staffOtp").value.trim();
+
+    const res = await fetch("https://hms1-181v.onrender.com/staff-forgot-verify-otp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: staffEmail, otp })
+    });
+
+    const data = await res.json();
+    document.getElementById("otpMsg").innerText = data.message;
+
+    if (data.success) {
+        staffOtpVerified = true;
+        document.getElementById("otpMsg").style.color = "lightgreen";
+        document.getElementById("resetSection").style.display = "block";
+    } else {
+        document.getElementById("otpMsg").style.color = "red";
+    }
+}
+
+// RESET STAFF PASSWORD
+async function resetStaffPassword() {
+    if (!staffOtpVerified) {
+        alert("Verify OTP first");
+        return;
+    }
+
+    const pass = document.getElementById("newPass").value;
+    const cpass = document.getElementById("confirmPass").value;
+
+    if (pass !== cpass) {
+        alert("Passwords do not match!");
+        return;
+    }
+
+    const res = await fetch("https://hms1-181v.onrender.com/staff-reset-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: staffEmail, password: pass })
+    });
+
+    const data = await res.json();
+
+    if (data.success) {
+        alert("Password reset successful!");
+        window.location.href = "logindesk.html";
+    } else {
+        alert(data.message);
+    }
+}
+</script>
+
+<script>
+function toggleStaffPass(id, icon) {
+    const field = document.getElementById(id);
+
+    if (field.type === "password") {
+        field.type = "text";
+        icon.classList.remove("fa-eye");
+        icon.classList.add("fa-eye-slash");
+    } else {
+        field.type = "password";
+        icon.classList.remove("fa-eye-slash");
+        icon.classList.add("fa-eye");
+    }
+}
+</script>
+
 </body>
 </html>

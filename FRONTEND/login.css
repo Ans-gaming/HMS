@@ -5,7 +5,8 @@ body {
     padding: 0;
 
     /* Background Image */
-    background: url("C:\\Hotel MS\\images\\login.jpg") no-repeat center center fixed;
+    background: url("images/login.jpg") no-repeat center center fixed;
+
     background-size: 1600px 750px;
 
     color: #333;
