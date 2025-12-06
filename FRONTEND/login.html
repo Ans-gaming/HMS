@@ -30,6 +30,8 @@
             <!-- Google Login Button -->
                 <button id="googleLogin" class="btn-user-login" style="background:#DB4437; margin-top:10px;">
                 <i class="fa-brands fa-google"></i> Login with Google</button>
+                <button onclick="facebookLogin()" class="btn-user-register" style="background:#1877F2; color:white; margin-top:10px;">
+                <i class="fa-brands fa-facebook"></i> Login with Facebook</button>
             
             <p style="margin-top: 15px;">Don't have an account? <a href="register.html">Register Here</a></p>
             <p style="margin-top: 15px;">Forgot Password? <a href="forgot.html">Forgot Password</a></p>
@@ -37,6 +39,44 @@
     </div>
     
     <footer>&copy; 2025 HMS Deluxe. All rights reserved.</footer>
+
+    <!-- Load Google SDK -->
+<script src="https://accounts.google.com/gsi/client"></script>
+
+<script>
+const GOOGLE_CLIENT_ID = "322209546870-bjkc4hg3blsr7mtbe47rsc10dbs33lv1.apps.googleusercontent.com";
+
+google.accounts.id.initialize({
+    client_id: GOOGLE_CLIENT_ID,
+    callback: handleGoogleResponse
+});
+
+document.getElementById("googleLogin").onclick = () => {
+    google.accounts.id.prompt();
+};
+
+async function handleGoogleResponse(response) {
+    try {
+        const res = await fetch("https://hms1-181v.onrender.com/google-login", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ credential: response.credential })
+        });
+
+        const data = await res.json();
+
+        if (data.success) {
+            localStorage.setItem("guestUsername", data.username);
+            alert("Login Successful!");
+            window.location.href = "userhome.html";
+        } else {
+            alert("Google Login Failed");
+        }
+    } catch (err) {
+        alert("Server Error");
+    }
+}
+</script>
 
     <script>
         // FULL NAME: Allow only A-Z and a-z (case-sensitive)
@@ -98,40 +138,10 @@
           }
         }
     </script>
-<script src="https://accounts.google.com/gsi/client" async defer></script>
 
-<script>
-const GOOGLE_CLIENT_ID = "322209546870-bjkc4hg3blsr7mtbe47rsc10dbs33lv1.apps.googleusercontent.com";
-
-google.accounts.id.initialize({
-    client_id: GOOGLE_CLIENT_ID,
-    callback: handleGoogleResponse
-});
-
-document.getElementById("googleLogin").onclick = () => {
-    google.accounts.id.prompt();
-};
-
-async function handleGoogleResponse(response) {
-    try {
-        const res = await fetch("https://hms1-181v.onrender.com/google-login", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ credential: response.credential })
-        });
-
-        const data = await res.json();
-
-        if (data.success) {
-            localStorage.setItem("guestUsername", data.username);
-            alert("Login Successful!");
-            window.location.href = "userhome.html";
-        } else {
-            alert("Google Login Failed");
-        }
-    } catch (err) {
-        alert("Server Error");
-    }
+    <script>
+function facebookLogin() {
+    window.location.href = "https://hms1-181v.onrender.com/auth/facebook";
 }
 </script>
 
