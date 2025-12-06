@@ -1167,6 +1167,17 @@ async (accessToken, refreshToken, profile, done) => {
     return done(null, user);
 }));
 
+app.get("/auth/facebook", passport.authenticate("facebook", { scope: ["email"] }));
+app.get("/auth/facebook/callback",
+    passport.authenticate("facebook", {
+        failureRedirect: "https://hms-xna6.onrender.com/login.html"
+    }),
+    (req, res) => {
+        const user = req.user;
+        res.redirect(`https://hms-xna6.onrender.com/userhome.html?user=${user.username}`);
+    }
+);
+
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
     console.log("Server running on " + PORT);
