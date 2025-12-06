@@ -5,9 +5,12 @@ const cors = require("cors");
 const app = express();
 
 // ⭐ FINAL WORKING CORS FIX
+
 app.use(cors({
-    origin: "*",
-    methods: ["GET", "POST", "PUT", "DELETE"],
+    origin: [
+        "https://hms-xna6.onrender.com"
+    ],
+    methods: ["GET", "POST"],
     allowedHeaders: ["Content-Type"]
 }));
 
@@ -27,6 +30,11 @@ const nodemailer = require("nodemailer");
 
 // Temporary storage for OTP
 let otpStore = {};
+
+const { OAuth2Client } = require("google-auth-library");
+const googleClient = new OAuth2Client(
+    "322209546870-bjkc4hg3blsr7mtbe47rsc10dbs33lv1.apps.googleusercontent.com"
+);
 
 // Import Models
 const Registration = require("./models/registration");
@@ -1095,6 +1103,38 @@ app.post("/staff-reset-password", async (req, res) => {
 
     } catch (err) {
         res.json({ success: false, message: "Failed to reset password" });
+    }
+});
+
+app.post("/google-login", async (req, res) => {
+    try {
+        const { credential } = req.body;
+
+        const ticket = await googleClient.verifyIdToken({
+            idToken: credential,
+            audience: "322209546870-bjkc4hg3blsr7mtbe47rsc10dbs33lv1.apps.googleusercontent.com"
+        });
+
+        const payload = ticket.getPayload();
+        const email = payload.email;
+        const name = payload.name;
+
+        let user = await Registration.findOne({ email });
+
+        if (!user) {
+            user = await Registration.create({
+                username: name,
+                email,
+                password: "GOOGLE_AUTH",
+                contact: "N/A"
+            });
+        }
+
+        res.json({ success: true, username: user.username });
+
+    } catch (error) {
+        console.error(error);
+        res.json({ success: false, message: "Google login failed" });
     }
 });
 
