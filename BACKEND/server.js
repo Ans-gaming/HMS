@@ -36,10 +36,6 @@ const googleClient = new OAuth2Client(
     "322209546870-bjkc4hg3blsr7mtbe47rsc10dbs33lv1.apps.googleusercontent.com"
 );
 
-const passport = require("passport");
-const FacebookStrategy = require("passport-facebook").Strategy;
-app.use(passport.initialize());
-
 // Import Models
 const Registration = require("./models/registration");
 const StaffRegister = require("./models/staffRegister");
@@ -1141,42 +1137,6 @@ app.post("/google-login", async (req, res) => {
         res.json({ success: false, message: "Google login failed" });
     }
 });
-
-passport.use(new FacebookStrategy({
-    clientID: "720872373940923",
-    clientSecret: "c4044a6a6a9213f43e0c3a1cfb1ca280",
-    callbackURL: "https://hms1-181v.onrender.com/auth/facebook/callback",
-    profileFields: ["id", "displayName", "emails"]
-}, 
-async (accessToken, refreshToken, profile, done) => {
-
-    const email = profile.emails?.[0]?.value;
-    const name = profile.displayName;
-
-    let user = await Registration.findOne({ email });
-
-    if (!user) {
-        user = await Registration.create({
-            username: name,
-            email,
-            password: "FACEBOOK_AUTH",
-            contact: "N/A"
-        });
-    }
-
-    return done(null, user);
-}));
-
-app.get("/auth/facebook", passport.authenticate("facebook", { scope: ["email"] }));
-app.get("/auth/facebook/callback",
-    passport.authenticate("facebook", {
-        failureRedirect: "https://hms-xna6.onrender.com/login.html"
-    }),
-    (req, res) => {
-        const user = req.user;
-        res.redirect(`https://hms-xna6.onrender.com/userhome.html?user=${user.username}`);
-    }
-);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
