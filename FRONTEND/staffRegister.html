@@ -21,7 +21,7 @@
     <form id="jobForm">
         <!-- Full Name -->
         <input type="text" id="fullname" placeholder="Enter your full name"
-               required oninput="this.value = this.value.replace(/[^A-Za-z ]/g,'');">
+               required oninput="this.value = this.value.replace(/[^A-Za-z ]/g,'');" autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false">
         <p class="error" id="nameError"></p>
 
         <div class="password-container">
@@ -44,7 +44,7 @@
         <p class="error" id="genderError"></p>
 
         <!-- Email -->
-        <input type="email" id="email" placeholder="Enter your email" required>
+        <input type="email" id="email" placeholder="Enter your email" required autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false">
         <p class="error" id="emailError"></p>
 
         <!-- ⭐ OTP SECTION ADDED BELOW EMAIL -->
@@ -63,7 +63,7 @@
 
         <!-- Contact -->
         <input type="tel" id="contact" maxlength="10" placeholder="Enter contact number"
-               required oninput="this.value = this.value.replace(/[^0-9]/g,'');">
+               required oninput="this.value = this.value.replace(/[^0-9]/g,'');" autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false">
         <p class="error" id="contactError"></p>
 
         <button type="submit" class="apply-btn">Submit Application</button>
